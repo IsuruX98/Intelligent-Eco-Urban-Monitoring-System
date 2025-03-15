@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Line } from 'react-chartjs-2';
 import { Chart, registerables } from 'chart.js';
+import { Link } from 'react-router-dom';
 
 Chart.register(...registerables);
 
@@ -24,7 +25,6 @@ const EcoSensorHome = () => {
           latestData.map((entry) => new Date(entry.timestamp).toLocaleTimeString())
         );
 
-        // Assuming the latest data has the air quality info
         if (latestData.length > 0) {
           const latestEntry = latestData[latestData.length - 1];
           setCurrentAirQuality(latestEntry.sensor_value);
@@ -48,7 +48,7 @@ const EcoSensorHome = () => {
       {
         label: "MQ-135 Sensor Value",
         data: sensorData,
-        borderColor: "rgba(74, 222, 128, 1)", // Green color from your title
+        borderColor: "rgba(74, 222, 128, 1)",
         backgroundColor: "rgba(74, 222, 128, 0.2)",
         borderWidth: 2,
         pointRadius: 3,
@@ -67,12 +67,12 @@ const EcoSensorHome = () => {
       y: {
         beginAtZero: true,
         ticks: {
-          color: "white", // White y-axis labels
+          color: "white",
         },
       },
       x: {
         ticks: {
-          color: "white", // White x-axis labels
+          color: "white",
         },
       },
     },
@@ -81,7 +81,7 @@ const EcoSensorHome = () => {
     plugins: {
       legend: {
         labels: {
-          color: 'white' // Legend Labels color.
+          color: 'white'
         }
       }
     }
@@ -106,8 +106,23 @@ const EcoSensorHome = () => {
         )}
       </div>
 
-      <div className="bg-gray-800 rounded-lg p-6 shadow-md" style={{ height: '300px' }}>
+      <div className="bg-gray-800 rounded-lg p-6 shadow-md mb-8" style={{ height: '300px' }}>
         <Line data={chartData} options={chartOptions} />
+      </div>
+
+      <div className="bg-gray-800 rounded-lg p-6 shadow-md">
+        <h2 className="text-2xl font-semibold mb-4 text-green-400">AI-Powered Air Quality Prediction</h2>
+        <p className="text-lg mb-4">
+          Unveiling Tomorrow's Atmosphere: Our AI model harnesses historical data and environmental factors to predict future air quality.
+        </p>
+        <p className="text-sm text-gray-400 mb-4">
+          You can predict the Future Air quality from here you can input your location and the date and see the what is the Air quality of that.
+        </p>
+
+        {/* Prediction Button */}
+        <Link to="/predict-air" className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded">
+          Predict Air Quality
+        </Link>
       </div>
     </div>
   );
