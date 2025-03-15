@@ -100,6 +100,8 @@ const PredictionPageAir = () => {
         </p>
       </div>
 
+      
+
       <div ref={mapRef} style={{ height: '400px', width: '100%' }}></div>
 
       <div className="max-w-md mx-auto bg-gray-800 rounded-lg p-8 shadow-md mt-8">

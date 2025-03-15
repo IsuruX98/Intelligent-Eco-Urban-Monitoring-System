@@ -94,9 +94,45 @@ const EcoSensorHome = () => {
           EcoSensor
         </h1>
       </div>
+      <div className="bg-gray-800 rounded-lg p-6 shadow-md">
+        <h2 className="text-2xl font-semibold mb-4 text-green-400">
+          EcoSensor Information
+        </h2>
+        <p className="text-lg mb-4">
+          EcoSensor is a real-time air quality monitoring system designed to provide accurate and up-to-date information about the air you breathe.
+        </p>
+        <p className="text-sm text-gray-400 mb-4">
+          This system uses an MQ-135 sensor to detect various gases in the atmosphere and displays the sensor values in a user-friendly chart.
+        </p>
+        <p className="text-sm text-gray-400 mb-4">
+          The system also provides AI-powered air quality predictions, allowing you to anticipate future air quality conditions.
+        </p>
+      </div>
+
+      <div className="bg-gray-800 rounded-lg p-6 shadow-md mt-8">
+        <h2 className="text-2xl font-semibold mb-4 text-green-400">
+          How to Use
+        </h2>
+        <ol className="list-decimal pl-6 text-gray-400">
+          <li className="mb-2">
+            View the real-time air quality data displayed in the chart.
+          </li>
+          <li className="mb-2">
+            Check the current air quality status and type displayed above the chart.
+          </li>
+          <li className="mb-2">
+            Click the "Predict Air Quality" button to navigate to the prediction page.
+          </li>
+          <li className="mb-2">
+            On the prediction page, enter your location and date to see the predicted air quality.
+          </li>
+        </ol>
+      </div>
 
       <div className="mb-8">
-        <h2 className="text-2xl font-semibold mb-4 text-green-400">Real-time Air Quality</h2>
+        <h2 className="text-2xl font-semibold mb-4 text-green-400">
+          Real-time Air Quality
+        </h2>
         {currentAirQuality !== null && currentAirQualityType !== null ? (
           <p className="text-lg">
             Current Air Quality: <span className="font-bold text-green-300">{currentAirQuality}</span> ({currentAirQualityType})
@@ -110,8 +146,10 @@ const EcoSensorHome = () => {
         <Line data={chartData} options={chartOptions} />
       </div>
 
-      <div className="bg-gray-800 rounded-lg p-6 shadow-md">
-        <h2 className="text-2xl font-semibold mb-4 text-green-400">AI-Powered Air Quality Prediction</h2>
+      <div className="bg-gray-800 rounded-lg p-6 shadow-md mb-8">
+        <h2 className="text-2xl font-semibold mb-4 text-green-400">
+          AI-Powered Air Quality Prediction
+        </h2>
         <p className="text-lg mb-4">
           Unveiling Tomorrow's Atmosphere: Our AI model harnesses historical data and environmental factors to predict future air quality.
         </p>
@@ -119,11 +157,12 @@ const EcoSensorHome = () => {
           You can predict the Future Air quality from here you can input your location and the date and see the what is the Air quality of that.
         </p>
 
-        {/* Prediction Button */}
         <Link to="/predict-air" className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded">
           Predict Air Quality
         </Link>
       </div>
+
+      
     </div>
   );
 };
