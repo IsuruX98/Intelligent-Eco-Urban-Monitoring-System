@@ -5,6 +5,7 @@ import GreenVisionHome from "../pages/GreenVisionHome";
 import EcoSensorHome from "../pages/EcoSensorHome";
 import NoiseGuardHome from "../pages/NoiseGuardHome";
 import EcoGoHome from "../pages/EcoGoHome";
+import PredictionPageAir from "../pages/PredictionPageAir";
 import AddVehicle from "../pages/EcoGo/addVehicle";
 import CO2Prediction from "../pages/EcoGo/predictVehicleCO2";
 import EcoGoDashboard from "../pages/EcoGo/ecoGoDashboard";
@@ -24,6 +25,7 @@ const AppRouter = () => {
       <Route path="/predict/:vehicleId" element={<CO2Prediction />} />
       <Route path="/virtualGarage" element={<VirtualGarage />} />
       <Route path="/eco-go" element={<EcoGoHome />} />
+      <Route path="/predict-air" element={<PredictionPageAir/>} />
       <Route path="/analysis-results" element={<AnalysisResults />} />
     </Routes>
   );
