@@ -17,6 +17,7 @@
     "leaflet": "^1.9.3",
     "leaflet-draw": "^1.0.4",
     "leaflet-image": "^0.4.0",
+    "lucide-react": "^0.482.0",
     "react": "^18.2.0",
     "react-apexcharts": "^1.7.0",
     "react-date-range": "^2.0.1",

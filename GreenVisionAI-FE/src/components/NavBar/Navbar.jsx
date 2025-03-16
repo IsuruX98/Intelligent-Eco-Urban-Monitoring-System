@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { AiOutlineClose, AiOutlineMenu, AiOutlineUser } from "react-icons/ai";
+import { AiOutlineClose, AiOutlineMenu, AiOutlineUser, AiOutlineLogout } from "react-icons/ai";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../context/authContext";
 import AuthModal from "../AuthModel/AuthModel";
@@ -42,15 +42,25 @@ const Navbar = () => {
         </div>
       </div>
 
-
       <div className="hidden lg:flex items-center gap-6 text-white">
         {user ? (
-          <button
-            onClick={() => setShowProfileModal(true)}
-            className="flex items-center gap-2 bg-white text-gray-900 px-4 py-2 rounded-lg shadow-sm hover:bg-gray-200"
-          >
-            <AiOutlineUser /> {user.name}
-          </button>
+          <>
+            {/* User Profile Button */}
+            <button
+              onClick={() => setShowProfileModal(true)}
+              className="flex items-center gap-2 bg-white text-gray-900 px-4 py-2 rounded-lg shadow-sm hover:bg-gray-200"
+            >
+              <AiOutlineUser /> {user.name}
+            </button>
+
+            {/* Logout Button */}
+            <button
+              onClick={logout}
+              className="flex items-center gap-2 text-white bg-red-600 px-4 py-2 rounded-lg shadow-sm hover:bg-red-700"
+            >
+              <AiOutlineLogout /> Logout
+            </button>
+          </>
         ) : (
           <>
             <button onClick={() => setShowLogin(true)} className="text-white">Sign In</button>
@@ -73,6 +83,16 @@ const Navbar = () => {
           <li><Link to="/noiseguard-ai" onClick={() => setNav(false)}>NoiseGuard AI</Link></li>
           <li><Link to="/ecogo-ai" onClick={() => setNav(false)}>EcoGo AI</Link></li>
         </ul>
+
+        {/* Show Logout Button in Mobile Menu if Logged In */}
+        {user && (
+          <button
+            onClick={logout}
+            className="mt-6 flex items-center gap-2 text-white bg-red-600 px-4 py-2 rounded-lg shadow-sm hover:bg-red-700 w-full"
+          >
+            <AiOutlineLogout /> Logout
+          </button>
+        )}
       </div>
 
       <AuthModal isOpen={showLogin} onClose={() => setShowLogin(false)} mode="login" />
