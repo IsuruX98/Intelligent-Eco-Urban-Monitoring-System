@@ -6,6 +6,7 @@ import L from 'leaflet';
 import 'leaflet-draw';
 import 'leaflet-draw/dist/leaflet.draw.css';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom'; // Import useNavigate
 
 // Fix for default marker icons in Leaflet
 delete L.Icon.Default.prototype._getIconUrl;
@@ -55,9 +56,9 @@ const RectangleAreaSelector = ({ onSelectArea }) => {
 };
 
 // Custom Hook to Update Map Center
-const ChangeView = ({ center }) => {
+const ChangeView = ({ center, zoom }) => {
     const map = useMap();
-    map.setView(center, 13);
+    map.setView(center, zoom);
     return null;
 };
 
@@ -73,6 +74,41 @@ const PinDropHandler = ({ onPinDrop }) => {
 const LocationSearch = ({ onLocationSelect }) => {
     const [query, setQuery] = useState('');
     const [suggestions, setSuggestions] = useState([]);
+
+    // Debounce function to limit API calls
+    const debounce = (func, delay) => {
+        let timeoutId;
+        return (...args) => {
+            clearTimeout(timeoutId);
+            timeoutId = setTimeout(() => func.apply(this, args), delay);
+        };
+    };
+
+    // Fetch suggestions from Nominatim API
+    const fetchSuggestions = async (query) => {
+        if (query.length > 2) {
+            try {
+                const response = await fetch(
+                    `https://nominatim.openstreetmap.org/search?format=json&q=${query}&limit=5`
+                );
+                const data = await response.json();
+                setSuggestions(data);
+            } catch (error) {
+                console.error('Error fetching suggestions:', error);
+            }
+        } else {
+            setSuggestions([]);
+        }
+    };
+
+    // Debounced version of fetchSuggestions
+    const debouncedFetchSuggestions = debounce(fetchSuggestions, 300);
+
+    const handleInputChange = (e) => {
+        const value = e.target.value;
+        setQuery(value);
+        debouncedFetchSuggestions(value);
+    };
 
     const handleSearch = async () => {
         if (!query) return;
@@ -91,12 +127,19 @@ const LocationSearch = ({ onLocationSelect }) => {
         }
     };
 
+    const handleSuggestionClick = (suggestion) => {
+        const { lat, lon, display_name } = suggestion;
+        setQuery(display_name);
+        onLocationSelect({ lat: parseFloat(lat), lng: parseFloat(lon), name: display_name });
+        setSuggestions([]);
+    };
+
     return (
         <div className="mb-4">
             <input
                 type="text"
                 value={query}
-                onChange={(e) => setQuery(e.target.value)}
+                onChange={handleInputChange}
                 placeholder="Search for a location..."
                 className="w-full px-4 py-2 rounded-md border border-gray-500 text-black"
             />
@@ -106,6 +149,19 @@ const LocationSearch = ({ onLocationSelect }) => {
             >
                 Search
             </button>
+            {suggestions.length > 0 && (
+                <ul className="suggestions-list bg-white text-black border border-gray-300 rounded-md mt-2">
+                    {suggestions.map((suggestion, index) => (
+                        <li
+                            key={index}
+                            onClick={() => handleSuggestionClick(suggestion)}
+                            className="px-4 py-2 hover:bg-gray-200 cursor-pointer"
+                        >
+                            {suggestion.display_name}
+                        </li>
+                    ))}
+                </ul>
+            )}
         </div>
     );
 };
@@ -115,8 +171,10 @@ const GreenVisionHome = () => {
     const [selectedLocation, setSelectedLocation] = useState(null);
     const [imageFile, setImageFile] = useState(null);
     const [mapCenter, setMapCenter] = useState([6.9271, 79.8612]); // Default to Colombo, Sri Lanka
+    const [mapZoom, setMapZoom] = useState(13); // Default zoom level
     const [isLocationSelected, setIsLocationSelected] = useState(false);
     const [selectionMethod, setSelectionMethod] = useState('rectangle'); // 'rectangle' or 'pin'
+    const navigate = useNavigate(); // Use the useNavigate hook
 
     const handleSelectArea = (bounds) => {
         const { _northEast, _southWest } = bounds;
@@ -133,6 +191,11 @@ const GreenVisionHome = () => {
         setIsLocationSelected(true);
     };
 
+    const handleLocationSelect = (loc) => {
+        setMapCenter([loc.lat, loc.lng]);
+        setMapZoom(18); // Maximum zoom level
+    };
+
     const handleImageUpload = (event) => {
         const file = event.target.files[0];
         if (file) {
@@ -145,22 +208,22 @@ const GreenVisionHome = () => {
             const formData = new FormData();
             formData.append('latitude', selectedLocation.lat);
             formData.append('longitude', selectedLocation.lng);
-            formData.append('image', imageFile);
+            formData.append('file', imageFile);
 
             console.log('selectedLocation:', selectedLocation);
             console.log('imageFile:', imageFile);
 
-
-            // try {
-            //     const response = await axios.post('http://127.0.0.1:5000/api/tree', formData, {
-            //         headers: {
-            //             'Content-Type': 'multipart/form-data',
-            //         },
-            //     });
-            //     console.log('Submission successful:', response.data);
-            // } catch (error) {
-            //     console.error('Error submitting data:', error);
-            // }
+            try {
+                const response = await axios.post('http://127.0.0.1:5000/api/tree', formData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                    },
+                });
+                console.log('Submission successful:', response.data);
+                navigate('/analysis-results', { state: { data: response.data } }); // Redirect with data
+            } catch (error) {
+                console.error('Error submitting data:', error);
+            }
         }
     };
 
@@ -182,9 +245,10 @@ const GreenVisionHome = () => {
             <div className="mb-12">
                 <h2 className="text-2xl text-green-400 font-semibold mb-4">How to Use</h2>
                 <ol className="list-decimal pl-6 text-gray-300">
-                    <li>Choose a selection method: Rectangle or Pin.</li>
-                    <li>Select a location on the map using the chosen method.</li>
-                    <li>Take a screenshot of the selected area and upload it.</li>
+                    <li>Search for or locate the desired location on the map.</li>
+                    <li>Take a cropped screenshot of the selected area by pressing the "PrtSc" key on your laptop.</li>
+                    <li>Use the selection method (Rectangle or Pin) to mark the location on the map.</li>
+                    <li>Upload the cropped screenshot of the selected area.</li>
                     <li>Click the "Submit" button to send the selected location and image snippet.</li>
                 </ol>
             </div>
@@ -212,16 +276,16 @@ const GreenVisionHome = () => {
             </div>
 
             {/* Search Component */}
-            <LocationSearch onLocationSelect={(loc) => setMapCenter([loc.lat, loc.lng])} />
+            <LocationSearch onLocationSelect={handleLocationSelect} />
 
             {/* Map Section */}
             <div className="mb-8">
                 <MapContainer
                     center={mapCenter}
-                    zoom={13}
+                    zoom={mapZoom}
                     style={{ height: "800px", width: "100%" }}
                 >
-                    <ChangeView center={mapCenter} />
+                    <ChangeView center={mapCenter} zoom={mapZoom} />
                     <TileLayer
                         attribution="Google Maps Satellite"
                         url="https://www.google.cn/maps/vt?lyrs=s@189&gl=cn&x={x}&y={y}&z={z}"
