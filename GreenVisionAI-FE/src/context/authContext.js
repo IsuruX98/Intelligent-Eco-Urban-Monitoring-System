@@ -1,7 +1,5 @@
 import React, { createContext, useState, useEffect, useContext } from "react";
 import axios from "../api/axios";
-import Cookies from "js-cookie";
-import { jwtDecode } from "jwt-decode";
 
 const AuthContext = createContext();
 
@@ -12,71 +10,53 @@ export const AuthProvider = ({ children }) => {
   const [authLoading, setAuthLoading] = useState(true);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
+  // Fetch user details from API
   const fetchUserById = async (userId) => {
     try {
-      const response = await axios.get(`user/profile/${userId}`);
-      const userData = response.data;
-      setUser(userData);
+      const response = await axios.get(`http://127.0.0.1:5000/api/users/${userId}`);
+      setUser(response.data);
     } catch (error) {
-      console.error("Error fetching user profile:", error.response.data);
+      console.error("Error fetching user profile:", error.response?.data || error.message);
     } finally {
-      setAuthLoading(false); // Set loading to false once user data is fetched or error occurs
+      setAuthLoading(false);
     }
   };
 
   useEffect(() => {
-    const jwtToken = Cookies.get("jwt");
-    const userIsLoggedIn = jwtToken ? true : false;
-    setIsLoggedIn(userIsLoggedIn);
-
-    if (userIsLoggedIn) {
-      const decodedToken = jwtDecode(jwtToken);
-      const userId = decodedToken.userId;
+    const userId = localStorage.getItem("user_id");
+    
+    if (userId) {
+      setIsLoggedIn(true);
       fetchUserById(userId);
     } else {
-      setAuthLoading(false); // If user is not logged in, set loading to false
+      setAuthLoading(false);
     }
   }, []);
 
   const login = async (formData) => {
     try {
-      const response = await axios.post("auth/auth", formData);
-      Cookies.set("jwt", response.data.token, {
-        expires: 30,
-      });
-      setIsLoggedIn(true);
-      setUser(response.data.user);
-      return { success: true, data: response.data };
-    } catch (error) {
-      return { success: false, error: error.response.data.error };
-    }
-  };
+      const response = await axios.post("http://127.0.0.1:5000/api/users/login", formData);
+      
+      const userId = response.data.user_id;
+      localStorage.setItem("user_id", userId);
 
-  const register = async (formData) => {
-    try {
-      const response = await axios.post("auth/register", formData);
-      Cookies.set("jwt", response.data.token, {
-        expires: 30,
-      });
       setIsLoggedIn(true);
-      setUser(response.data.user);
+      fetchUserById(userId);
+
       return { success: true, data: response.data };
     } catch (error) {
-      return { success: false, error: error.response.data.error };
+      return { success: false, error: error.response?.data?.message || "Login failed" };
     }
   };
 
   const logout = () => {
+    localStorage.removeItem("user_id");
     setIsLoggedIn(false);
     setUser(null);
-    Cookies.remove("jwt");
-    return { success: true, message: "logout successfully" };
   };
 
   return (
-    <AuthContext.Provider
-      value={{ user, authLoading, isLoggedIn, login, register, logout }}
-    >
+    <AuthContext.Provider value={{ user, authLoading, isLoggedIn, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
