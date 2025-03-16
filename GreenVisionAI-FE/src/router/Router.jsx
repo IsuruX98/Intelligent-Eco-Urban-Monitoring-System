@@ -9,6 +9,8 @@ import AddVehicle from "../pages/EcoGo/addVehicle";
 import CO2Prediction from "../pages/EcoGo/predictVehicleCO2";
 import EcoGoDashboard from "../pages/EcoGo/ecoGoDashboard";
 import VirtualGarage from "../pages/EcoGo/VirtualGarage";
+import VehicleOverview from "../pages/EcoGo/VehicleOverview";
+import EcoNavigator from "../pages/EcoGo/EcoNavigator";
 
 const AppRouter = () => {
   return (
@@ -18,11 +20,13 @@ const AppRouter = () => {
       <Route path="/eco-sensor" element={<EcoSensorHome />} />
       <Route path="/noise-guard" element={<NoiseGuardHome />} />
 
-      <Route path="/ecogo" element={<EcoGoHome />} />
+      <Route path="/eco-go" element={<EcoGoHome />} />
+      <Route path="/ecogo/navigator" element={<EcoNavigator />} />
       <Route path="/ecogo/dashboard" element={<EcoGoDashboard />} />
-      <Route path="/addVehicle" element={<AddVehicle />} />
-      <Route path="/predict/:vehicleId" element={<CO2Prediction />} />
-      <Route path="/virtualGarage" element={<VirtualGarage />} />
+      <Route path="ecogo/addVehicle" element={<AddVehicle />} />
+      <Route path="ecogo/predict/:vehicleId" element={<CO2Prediction />} />
+      <Route path="ecogo/virtualGarage" element={<VirtualGarage />} />
+      <Route path="ecogo/vehicleOverview" element={<VehicleOverview />} />
 
     </Routes>
   );
