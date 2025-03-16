@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 import tensorflow as tf
 from math import sin, cos, sqrt, atan2, radians
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify,send_from_directory
 from flask_cors import CORS
 
 # Initialize Flask app
@@ -298,6 +298,10 @@ def tree():
     os.remove(file_path)
 
     return jsonify(response)
+
+@app.route('/store/<path:filename>')
+def serve_static(filename):
+    return send_from_directory('store', filename)
 
 # @app.route('/api/forecast', methods=['POST'])
 # def forecast():
