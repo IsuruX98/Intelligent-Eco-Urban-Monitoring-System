@@ -20,7 +20,6 @@ const AppRouter = () => {
       <Route path="/green-vision" element={<GreenVisionHome />} />
       <Route path="/eco-sensor" element={<EcoSensorHome />} />
       <Route path="/noise-guard" element={<NoiseGuardHome />} />
-
       <Route path="/eco-go" element={<EcoGoHome />} />
       <Route path="/ecogo/navigator" element={<EcoNavigator />} />
       <Route path="/ecogo/dashboard" element={<EcoGoDashboard />} />
