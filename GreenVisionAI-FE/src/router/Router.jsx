@@ -11,6 +11,7 @@ import EcoGoDashboard from "../pages/EcoGo/ecoGoDashboard";
 import VirtualGarage from "../pages/EcoGo/VirtualGarage";
 import VehicleOverview from "../pages/EcoGo/VehicleOverview";
 import EcoNavigator from "../pages/EcoGo/EcoNavigator";
+import AnalysisResults from "../pages/AnalysisResults";
 
 const AppRouter = () => {
   return (
@@ -27,7 +28,7 @@ const AppRouter = () => {
       <Route path="ecogo/predict/:vehicleId" element={<CO2Prediction />} />
       <Route path="ecogo/virtualGarage" element={<VirtualGarage />} />
       <Route path="ecogo/vehicleOverview" element={<VehicleOverview />} />
-
+      <Route path="/analysis-results" element={<AnalysisResults />} />
     </Routes>
   );
 };
