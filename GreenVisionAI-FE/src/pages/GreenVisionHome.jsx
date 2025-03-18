@@ -6,7 +6,7 @@ import L from 'leaflet';
 import 'leaflet-draw';
 import 'leaflet-draw/dist/leaflet.draw.css';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom'; // Import useNavigate
+import { useNavigate } from 'react-router-dom';
 
 // Fix for default marker icons in Leaflet
 delete L.Icon.Default.prototype._getIconUrl;
@@ -55,14 +55,12 @@ const RectangleAreaSelector = ({ onSelectArea }) => {
     return null;
 };
 
-// Custom Hook to Update Map Center
 const ChangeView = ({ center, zoom }) => {
     const map = useMap();
     map.setView(center, zoom);
     return null;
 };
 
-// Component to handle pin drop on map click
 const PinDropHandler = ({ onPinDrop }) => {
     useMapEvent('click', (e) => {
         onPinDrop(e.latlng);
@@ -70,12 +68,10 @@ const PinDropHandler = ({ onPinDrop }) => {
     return null;
 };
 
-// Location Search Component
 const LocationSearch = ({ onLocationSelect }) => {
     const [query, setQuery] = useState('');
     const [suggestions, setSuggestions] = useState([]);
 
-    // Debounce function to limit API calls
     const debounce = (func, delay) => {
         let timeoutId;
         return (...args) => {
@@ -84,7 +80,6 @@ const LocationSearch = ({ onLocationSelect }) => {
         };
     };
 
-    // Fetch suggestions from Nominatim API
     const fetchSuggestions = async (query) => {
         if (query.length > 2) {
             try {
@@ -101,7 +96,6 @@ const LocationSearch = ({ onLocationSelect }) => {
         }
     };
 
-    // Debounced version of fetchSuggestions
     const debouncedFetchSuggestions = debounce(fetchSuggestions, 300);
 
     const handleInputChange = (e) => {
@@ -135,27 +129,27 @@ const LocationSearch = ({ onLocationSelect }) => {
     };
 
     return (
-        <div className="mb-4">
+        <div className="mb-6">
             <input
                 type="text"
                 value={query}
                 onChange={handleInputChange}
                 placeholder="Search for a location..."
-                className="w-full px-4 py-2 rounded-md border border-gray-500 text-black"
+                className="w-full px-4 py-2 rounded-md border border-gray-300 focus:border-green-500 focus:ring-2 focus:ring-green-200 transition duration-200 text-black"
             />
             <button
                 onClick={handleSearch}
-                className="bg-green-500 text-white px-4 py-2 rounded-md mt-2 hover:bg-green-600 transition mb-5"
+                className="bg-green-500 text-white px-4 py-2 rounded-md mt-3 hover:bg-green-600 transition duration-200"
             >
                 Search
             </button>
             {suggestions.length > 0 && (
-                <ul className="suggestions-list bg-white text-black border border-gray-300 rounded-md mt-2">
+                <ul className="suggestions-list bg-white border border-gray-300 rounded-md mt-2">
                     {suggestions.map((suggestion, index) => (
                         <li
                             key={index}
                             onClick={() => handleSuggestionClick(suggestion)}
-                            className="px-4 py-2 hover:bg-gray-200 cursor-pointer"
+                            className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-black"
                         >
                             {suggestion.display_name}
                         </li>
@@ -166,15 +160,14 @@ const LocationSearch = ({ onLocationSelect }) => {
     );
 };
 
-// Main Component
 const GreenVisionHome = () => {
     const [selectedLocation, setSelectedLocation] = useState(null);
     const [imageFile, setImageFile] = useState(null);
-    const [mapCenter, setMapCenter] = useState([6.9271, 79.8612]); // Default to Colombo, Sri Lanka
-    const [mapZoom, setMapZoom] = useState(13); // Default zoom level
+    const [mapCenter, setMapCenter] = useState([6.9271, 79.8612]);
+    const [mapZoom, setMapZoom] = useState(13);
     const [isLocationSelected, setIsLocationSelected] = useState(false);
-    const [selectionMethod, setSelectionMethod] = useState('rectangle'); // 'rectangle' or 'pin'
-    const navigate = useNavigate(); // Use the useNavigate hook
+    const [selectionMethod, setSelectionMethod] = useState('rectangle');
+    const navigate = useNavigate();
 
     const handleSelectArea = (bounds) => {
         const { _northEast, _southWest } = bounds;
@@ -193,7 +186,7 @@ const GreenVisionHome = () => {
 
     const handleLocationSelect = (loc) => {
         setMapCenter([loc.lat, loc.lng]);
-        setMapZoom(18); // Maximum zoom level
+        setMapZoom(18);
     };
 
     const handleImageUpload = (event) => {
@@ -210,17 +203,13 @@ const GreenVisionHome = () => {
             formData.append('longitude', selectedLocation.lng);
             formData.append('file', imageFile);
 
-            console.log('selectedLocation:', selectedLocation);
-            console.log('imageFile:', imageFile);
-
             try {
                 const response = await axios.post('http://127.0.0.1:5000/api/tree', formData, {
                     headers: {
                         'Content-Type': 'multipart/form-data',
                     },
                 });
-                console.log('Submission successful:', response.data);
-                navigate('/analysis-results', { state: { data: response.data } }); // Redirect with data
+                navigate('/analysis-results', { state: { data: response.data } });
             } catch (error) {
                 console.error('Error submitting data:', error);
             }
@@ -228,7 +217,7 @@ const GreenVisionHome = () => {
     };
 
     return (
-        <div className='bg-gray-900 min-h-screen text-white py-12 px-12 md:px-8 lg:px-16 xl:px-32 relative'>
+        <div className='bg-gray-900 min-h-screen text-white py-12 px-4 sm:px-8 lg:px-16 xl:px-32'>
             <h1 className="text-4xl text-green-400 font-bold mb-8">
                 GreenVision AI
             </h1>
@@ -241,7 +230,6 @@ const GreenVisionHome = () => {
                 </p>
             </div>
 
-            {/* Instructions Section */}
             <div className="mb-12">
                 <h2 className="text-2xl text-green-400 font-semibold mb-4">How to Use</h2>
                 <ol className="list-decimal pl-6 text-gray-300">
@@ -253,37 +241,36 @@ const GreenVisionHome = () => {
                 </ol>
             </div>
 
-            {/* Selection Method Toggle */}
-            <div className="mb-4">
-                <label className="mr-4">
+            <div className="mb-4 flex space-x-4">
+                <label className="flex items-center space-x-2">
                     <input
                         type="radio"
                         value="rectangle"
                         checked={selectionMethod === 'rectangle'}
                         onChange={() => setSelectionMethod('rectangle')}
+                        className="form-radio h-5 w-5 text-green-500"
                     />
-                    Rectangle Selection
+                    <span className="text-gray-300">Rectangle Selection</span>
                 </label>
-                <label>
+                <label className="flex items-center space-x-2">
                     <input
                         type="radio"
                         value="pin"
                         checked={selectionMethod === 'pin'}
                         onChange={() => setSelectionMethod('pin')}
+                        className="form-radio h-5 w-5 text-green-500"
                     />
-                    Pin Selection
+                    <span className="text-gray-300">Pin Selection</span>
                 </label>
             </div>
 
-            {/* Search Component */}
             <LocationSearch onLocationSelect={handleLocationSelect} />
 
-            {/* Map Section */}
             <div className="mb-8">
                 <MapContainer
                     center={mapCenter}
                     zoom={mapZoom}
-                    style={{ height: "800px", width: "100%" }}
+                    style={{ height: "600px", width: "100%" }}
                 >
                     <ChangeView center={mapCenter} zoom={mapZoom} />
                     <TileLayer
@@ -306,7 +293,6 @@ const GreenVisionHome = () => {
                 </MapContainer>
             </div>
 
-            {/* Instructions for Screenshot and Upload */}
             {isLocationSelected && (
                 <div className="mb-8">
                     <h2 className="text-2xl text-green-400 font-semibold mb-4">Next Steps</h2>
@@ -317,27 +303,29 @@ const GreenVisionHome = () => {
                         <li>Take a screenshot of the selected area on the map.</li>
                         <li>Upload the screenshot using the file input below.</li>
                     </ol>
-                    <input
-                        type="file"
-                        accept="image/*"
-                        onChange={handleImageUpload}
-                        className="mt-4"
-                    />
+                    <label className="block mt-4">
+                        <span className="sr-only">Choose file</span>
+                        <input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleImageUpload}
+                            className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-green-500 file:text-white hover:file:bg-green-600"
+                        />
+                    </label>
                     {imageFile && (
                         <div className="mt-4">
                             <h2 className="text-2xl text-green-400 font-semibold mb-4">Uploaded Image</h2>
-                            <img src={URL.createObjectURL(imageFile)} alt="Uploaded Area" className="max-w-full h-auto" />
+                            <img src={URL.createObjectURL(imageFile)} alt="Uploaded Area" className="max-w-full h-auto rounded-lg shadow-md" />
                         </div>
                     )}
                 </div>
             )}
 
-            {/* Submit Section */}
             <div className="text-center">
                 {isLocationSelected && imageFile && (
                     <button
                         onClick={handleSubmit}
-                        className="bg-blue-500 text-white px-6 py-2 rounded-lg shadow-md hover:bg-blue-600 transition duration-300 mt-4"
+                        className="bg-green-500 text-white text-xl font-bold px-6 py-2 rounded-lg shadow-md hover:bg-green-600 w-full transition duration-300 mt-4"
                     >
                         Submit
                     </button>

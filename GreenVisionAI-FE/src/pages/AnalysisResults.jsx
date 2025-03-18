@@ -9,81 +9,112 @@ const AnalysisResults = () => {
     const [recommendations, setRecommendations] = useState([]); // State for recommendations
 
     useEffect(() => {
-        if (!data) return; // Early return if no data is available
+        if (!data) return; // Exit early if data is unavailable
 
         const { segmentation_stats, forecast } = data;
-
         const recommendationsList = [];
 
-        // Extract key metrics
+        console.log(forecast);
+
+
+        // Extract and process forecast values
+        const forecastValues = Object.values(forecast).map(value => parseFloat(value));
+        const firstMonth = forecastValues[0]; // First recorded month
+        const lastMonth = forecastValues[forecastValues.length - 1]; // Most recent month
+
+        // Determine the trend based on first and last month values
+        if (lastMonth < firstMonth) {
+            recommendationsList.push(
+                "📉 **Declining Vegetation Health Trend Detected**:\n" +
+                "The forecast suggests a downward trend in vegetation health over the coming months. This may be due to factors such as " +
+                "changing weather conditions, inadequate soil nutrients, or increased plant stress. To counteract this decline, consider:\n" +
+                "  - **Improving soil quality** with organic compost or mineral supplements 🧪\n" +
+                "  - **Enhancing irrigation** strategies to prevent moisture stress 💦\n" +
+                "  - **Monitoring for pests and diseases**, taking early action if needed 🐛\n" +
+                "  - **Using mulching techniques** to retain soil moisture and protect root systems 🍂\n" +
+                "Taking these proactive steps can help slow or even reverse the decline."
+            );
+        } else if (lastMonth > firstMonth) {
+            recommendationsList.push(
+                "📈 **Improving Vegetation Health Trend Detected**:\n" +
+                "The forecast indicates an increase in vegetation health over time, which is a positive sign! This could be due to favorable " +
+                "growing conditions, effective land management, or recent environmental conservation efforts. To maintain and accelerate this growth:\n" +
+                "  - **Expand vegetation coverage** by planting additional trees, shrubs, or crops 🌱\n" +
+                "  - **Optimize fertilization practices** to ensure plants receive adequate nutrients 🌿\n" +
+                "  - **Continue sustainable watering routines** to support long-term health 💧\n" +
+                "  - **Encourage biodiversity** by introducing native plant species and maintaining a balanced ecosystem 🦋\n" +
+                "Your efforts are yielding great results! Keep up the good work to sustain long-term vegetation health."
+            );
+        } else {
+            recommendationsList.push(
+                "📊 **Stable Vegetation Health Trend Detected**:\n" +
+                "The forecast shows minimal fluctuation in vegetation health, indicating that conditions are relatively stable. While this is a good sign, " +
+                "it’s essential to maintain your current practices and make small improvements to prevent unexpected deterioration. Consider:\n" +
+                "  - **Regular soil testing** to monitor nutrient levels and adjust care accordingly 🧪\n" +
+                "  - **Periodic pruning and maintenance** to promote plant health and growth ✂️\n" +
+                "  - **Monitoring climate changes** and adapting vegetation care routines based on seasonal variations 🌦️\n" +
+                "  - **Encouraging community involvement** in conservation efforts to keep green spaces thriving 🤝\n" +
+                "By staying proactive, you can ensure that vegetation health remains stable or even improves in the future."
+            );
+        }
+
+
+        // NDVI Score Analysis
         const ndviScore = parseFloat(segmentation_stats['NDVI Score']);
+        if (ndviScore < 0.3) {
+            recommendationsList.push(
+                "⚠️ Low NDVI Score: Your vegetation health appears poor. To improve plant vitality, consider enhancing soil quality with compost or fertilizers, optimizing irrigation schedules, and reducing soil compaction."
+            );
+        } else if (ndviScore >= 0.3 && ndviScore < 0.6) {
+            recommendationsList.push(
+                "ℹ️ Moderate NDVI Score: Your vegetation is in fair condition. Regular monitoring, proper irrigation, and occasional fertilization can help maintain and enhance plant health."
+            );
+        } else {
+            recommendationsList.push(
+                "✅ High NDVI Score: Your vegetation is thriving! Continue with your current practices and monitor for any seasonal changes that may require adjustments."
+            );
+        }
+
+        // Green Percentage Analysis
         const greenPercentage = parseFloat(segmentation_stats['Green Percentage']);
+        if (greenPercentage < 30) {
+            recommendationsList.push(
+                "🌱 Low Green Cover: The area has limited greenery. You may want to plant more trees, shrubs, or ground cover to enhance biodiversity and improve air quality."
+            );
+        } else if (greenPercentage >= 30 && greenPercentage < 70) {
+            recommendationsList.push(
+                "🌿 Moderate Green Cover: Your area has a decent amount of vegetation. Consider increasing greenery by introducing native plants or vertical gardens."
+            );
+        } else {
+            recommendationsList.push(
+                "🌳 High Green Cover: Your area is well-vegetated! Keep up with regular maintenance and tree care to sustain its health."
+            );
+        }
+
+        // Vegetation Density Analysis
         const highDensity = parseFloat(segmentation_stats['High Vegetation Density Coverage']);
         const mediumDensity = parseFloat(segmentation_stats['Medium Vegetation Density Coverage']);
         const lowDensity = parseFloat(segmentation_stats['Low Vegetation Density Coverage']);
-        const forecastValues = Object.values(forecast).map(value => parseFloat(value));
-        const averageForecast = forecastValues.reduce((sum, value) => sum + value, 0) / forecastValues.length;
 
-        // General Recommendations for All Users
-        recommendationsList.push("🌱 **General Tips for Everyone:**");
-        if (ndviScore < 0.3) {
-            recommendationsList.push("- The vegetation health in your area is poor. Consider planting native trees and shrubs to improve greenery.");
-        } else if (ndviScore >= 0.3 && ndviScore < 0.6) {
-            recommendationsList.push("- The vegetation health in your area is moderate. Regular watering and soil enrichment can help improve it.");
-        } else {
-            recommendationsList.push("- The vegetation health in your area is excellent! Keep maintaining the green cover.");
-        }
-
-        if (greenPercentage < 30) {
-            recommendationsList.push("- Your area has a low green percentage. Consider creating small gardens or green rooftops to increase vegetation.");
-        } else if (greenPercentage >= 30 && greenPercentage < 70) {
-            recommendationsList.push("- Your area has a moderate green percentage. Adding more plants or community gardens can enhance it further.");
-        } else {
-            recommendationsList.push("- Your area has a high green percentage. Great job! Ensure proper maintenance to sustain it.");
-        }
-
-        // Recommendations for City Planners
-        recommendationsList.push("🏙️ **For City Planners:**");
         if (lowDensity > 50) {
-            recommendationsList.push("- Large areas have low vegetation density. Plan urban forests or green belts to improve density.");
+            recommendationsList.push(
+                "🏜️ Low Vegetation Density: Over half of the area has sparse vegetation. Consider reforestation, afforestation, or introducing more drought-resistant plant species."
+            );
         }
         if (mediumDensity > 50) {
-            recommendationsList.push("- Significant areas have medium vegetation density. Introduce vertical gardens or green walls in urban spaces.");
+            recommendationsList.push(
+                "🌾 Medium Vegetation Density: A significant portion of the area has moderate vegetation coverage. Regular watering, pruning, and fertilization can help increase density."
+            );
         }
         if (highDensity > 50) {
-            recommendationsList.push("- Large areas have high vegetation density. Ensure proper urban planning to balance development and greenery.");
+            recommendationsList.push(
+                "🌲 High Vegetation Density: Your area has lush greenery! Maintain soil health and monitor for overcrowding to ensure plant sustainability."
+            );
         }
-        recommendationsList.push("- Use the forecast data to plan long-term green initiatives. For example, allocate budgets for tree planting in areas with declining vegetation health.");
 
-        // Recommendations for Homeowners
-        recommendationsList.push("🏡 **For Homeowners:**");
-        if (ndviScore < 0.3) {
-            recommendationsList.push("- Improve your garden's health by using organic fertilizers and mulching.");
-        }
-        if (greenPercentage < 30) {
-            recommendationsList.push("- Plant drought-resistant plants or create a small vegetable garden to increase green cover.");
-        }
-        recommendationsList.push("- Regularly water your plants and ensure proper drainage to maintain healthy vegetation.");
+        setRecommendations(recommendationsList); // Update recommendations state
+    }, [data]); // Re-run when `data` changes
 
-        // Recommendations for Government
-        recommendationsList.push("🏛️ **For Government Officials:**");
-        if (averageForecast < 0.3) {
-            recommendationsList.push("- The forecast indicates a decline in vegetation health. Launch public awareness campaigns about the importance of greenery.");
-        }
-        if (lowDensity > 50) {
-            recommendationsList.push("- Allocate funds for afforestation projects in areas with low vegetation density.");
-        }
-        recommendationsList.push("- Implement policies to protect existing green spaces and promote sustainable urban development.");
-        recommendationsList.push("- Encourage public-private partnerships for community gardening and urban greening projects.");
-
-        // Recommendations for Normal Users
-        recommendationsList.push("👤 **For Normal Users:**");
-        recommendationsList.push("- Participate in local tree-planting drives or community gardening initiatives.");
-        recommendationsList.push("- Use water-efficient irrigation methods for your plants to conserve resources.");
-        recommendationsList.push("- Spread awareness about the benefits of green spaces and encourage others to contribute.");
-
-        setRecommendations(recommendationsList); // Set the recommendations state
-    }, [data]);
 
     if (!data) {
         return <div>No data available</div>;
