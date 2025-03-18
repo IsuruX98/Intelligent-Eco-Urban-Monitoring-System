@@ -16,7 +16,7 @@ import {
   X // Close icon
 } from "lucide-react";
 
-const VirtualGarage = ({ userId = "67d1f174ee3d523a6cee1e32" }) => {
+const VirtualGarage = () => {
   const [vehicles, setVehicles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -28,11 +28,12 @@ const VirtualGarage = ({ userId = "67d1f174ee3d523a6cee1e32" }) => {
 
   useEffect(() => {
     fetchVehicles();
-  }, [userId]);
+  }, []);
 
   const fetchVehicles = async () => {
     setLoading(true);
     try {
+      const userId = localStorage.getItem("user_id");
       const response = await fetch(`http://127.0.0.1:5000/api/vehicles/vehicles/user/${userId}`);
       if (!response.ok) {
         throw new Error("Failed to fetch vehicles");
@@ -141,8 +142,22 @@ const VirtualGarage = ({ userId = "67d1f174ee3d523a6cee1e32" }) => {
   const handleDeleteVehicle = async (vehicleId) => {
     if (window.confirm("Are you sure you want to delete this vehicle?")) {
       try {
+        // Make the actual DELETE request to the server
+        const response = await fetch(`http://127.0.0.1:5000/api/vehicles/${vehicleId}`, {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        if (!response.ok) {
+          throw new Error(`Error: ${response.status}`);
+        }
+        
         console.log("Delete vehicle:", vehicleId);
+        // Update the UI by removing the deleted vehicle from the list
         setVehicles(vehicles.filter(v => v._id.$oid !== vehicleId));
+        
       } catch (err) {
         console.error("Error deleting vehicle:", err);
       }
@@ -150,7 +165,7 @@ const VirtualGarage = ({ userId = "67d1f174ee3d523a6cee1e32" }) => {
   };
 
   const handleAddVehicle = () => {
-    navigate("/add-vehicle");
+    navigate("/ecogo/addVehicle");
   };
 
   const handleBackToDashboard = () => {

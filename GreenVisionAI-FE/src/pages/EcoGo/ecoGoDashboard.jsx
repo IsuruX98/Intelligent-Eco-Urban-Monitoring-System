@@ -44,7 +44,7 @@ const EcoGoDashboard = ({ userId }) => {
 
   // Navigation functions
   const goToGarage = () => navigate("/ecogo/virtualGarage");
-  const goToEcoNavigator = () => navigate("/eco-navigator");
+  const goToEcoNavigator = () => navigate("/ecogo/navigator");
   const goToAddVehicle = () => navigate("/ecogo/addVehicle");
   const goToTrips = () => navigate("/trips-history");
 

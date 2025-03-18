@@ -8,7 +8,8 @@ const EcoNavigator = () => {
 
   const [startLocation, setStartLocation] = useState("Colombo, Sri Lanka");
   const [endLocation, setEndLocation] = useState("Galle, Sri Lanka");
-  const [vehicleType, setVehicleType] = useState("petrol");
+  const [selectedVehicle, setSelectedVehicle] = useState(null);
+  const [vehicles, setVehicles] = useState([]);
   const [routeInfo, setRouteInfo] = useState("Click on the map to mark traffic incidents.");
   const [ecoPoints, setEcoPoints] = useState(0);
   const [co2SavedTrip, setCo2SavedTrip] = useState(0);
@@ -26,6 +27,22 @@ const EcoNavigator = () => {
   const currentRouteRef = useRef(null);
   const originalRouteDataRef = useRef(null);
   const trafficMarksRef = useRef([]);
+
+  // Fetch user's vehicles
+  useEffect(() => {
+    const userId = localStorage.getItem('user_id');
+    if (userId) {
+      fetch(`http://127.0.0.1:5000/api/vehicles/vehicles/user/${userId}`)
+        .then(response => response.json())
+        .then(data => {
+          setVehicles(data);
+          if (data.length > 0) {
+            setSelectedVehicle(data[0]);
+          }
+        })
+        .catch(error => console.error('Error fetching vehicles:', error));
+    }
+  }, []);
 
   // Load HERE Maps scripts
   useEffect(() => {
@@ -227,7 +244,7 @@ const EcoNavigator = () => {
   const calculateCO2Emission = (distanceMeters, durationSeconds) => {
     const distanceKm = distanceMeters / 1000;
     const idleTimeMin = durationSeconds / 60 * 0.1;
-    const co2PerKm = vehicleType === "petrol" ? 0.12 : vehicleType === "diesel" ? 0.10 : 0;
+    const co2PerKm = selectedVehicle ? selectedVehicle.CO2_Emission / 1000 : 0; // Convert g/km to kg/km
     const drivingCO2 = distanceKm * co2PerKm;
     const idleCO2 = idleTimeMin * 0.05;
     return drivingCO2 + idleCO2;
@@ -452,15 +469,20 @@ const EcoNavigator = () => {
           </div>
 
           <div className="flex flex-col">
-            <label className="text-sm font-medium text-gray-200 mb-1">Vehicle Type:</label>
+            <label className="text-sm font-medium text-gray-200 mb-1">Vehicle:</label>
             <select
-              value={vehicleType}
-              onChange={(e) => setVehicleType(e.target.value)}
+              value={selectedVehicle ? selectedVehicle._id.$oid : ''}
+              onChange={(e) => {
+                const selected = vehicles.find(v => v._id.$oid === e.target.value);
+                setSelectedVehicle(selected);
+              }}
               className="p-2 border border-gray-700 rounded bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
             >
-              <option value="petrol">Petrol (120g/km)</option>
-              <option value="diesel">Diesel (100g/km)</option>
-              <option value="electric">Electric (0g/km)</option>
+              {vehicles.map(vehicle => (
+                <option key={vehicle._id.$oid} value={vehicle._id.$oid}>
+                  {vehicle.vehicle_name} ({vehicle.CO2_Emission}g/km)
+                </option>
+              ))}
             </select>
           </div>
         </div>
