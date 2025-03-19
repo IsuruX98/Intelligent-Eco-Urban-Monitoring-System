@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
+import Alert from './../../components/EcoGo/Alert'; // Import the Alert component
 
 const CO2Prediction = () => {
     const { vehicleId } = useParams();
-
+    const navigate = useNavigate(); // For navigation to Virtual Garage
+    
     const [vehicleType, setVehicleType] = useState('');
     const [transmission, setTransmission] = useState('');
     const [fuelType, setFuelType] = useState('');
@@ -11,6 +13,9 @@ const CO2Prediction = () => {
     const [engineCapacity, setEngineCapacity] = useState('');
     const [enginePowerPS, setEnginePowerPS] = useState('');
     const [result, setResult] = useState('');
+    const [showAlert, setShowAlert] = useState(false);
+    const [alertType, setAlertType] = useState('success');
+    const [alertMessage, setAlertMessage] = useState('');
 
     useEffect(() => {
         if (vehicleId) {
@@ -31,23 +36,56 @@ const CO2Prediction = () => {
         };
 
         try {
-            const response = await fetch('http://127.0.0.1:5000/api/co2/predict', {
+            const response = await fetch('http://127.0.0.1:5001/api/co2/predict', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(formData)
             });
 
             const resultData = await response.json();
-            setResult(resultData.predicted_co2_emission
-                ? `Predicted CO2 Emission: ${resultData.predicted_co2_emission} g/km`
-                : `Error: ${resultData.error}`);
+            
+            if (resultData.predicted_co2_emission) {
+                const message = `Predicted CO2 Emission: ${resultData.predicted_co2_emission} g/km`;
+                setResult(message);
+                setAlertMessage(message);
+                setAlertType('success');
+                setShowAlert(true);
+                
+                // Set a timeout to navigate to the virtual garage after showing the alert
+                setTimeout(() => {
+                    navigate('/ecogo/virtualGarage'); // Adjust this path as needed
+                }, 3000); // This matches the default duration of the Alert component
+            } else {
+                setResult(`Error: ${resultData.error}`);
+                setAlertMessage(`Error: ${resultData.error}`);
+                setAlertType('error');
+                setShowAlert(true);
+            }
         } catch (error) {
-            setResult(`Error: ${error.message}`);
+            const errorMessage = `Error: ${error.message}`;
+            setResult(errorMessage);
+            setAlertMessage(errorMessage);
+            setAlertType('error');
+            setShowAlert(true);
         }
+    };
+
+    const handleAlertClose = () => {
+        setShowAlert(false);
     };
 
     return (
         <div className="bg-gray-900 min-h-screen flex items-center justify-center text-white py-12 px-6 sm:px-12 lg:px-16">
+            {showAlert && (
+                <Alert 
+                    message={alertMessage} 
+                    type={alertType} 
+                    duration={3000} 
+                    onClose={handleAlertClose}
+                    showIcon={true}
+                />
+            )}
+            
             <div className="bg-gray-800 p-8 rounded-2xl shadow-xl w-full max-w-md">
                 <h1 className="text-3xl text-green-400 font-semibold text-center mb-6">CO2 Emission Prediction</h1>
                 <form onSubmit={handleSubmit}>

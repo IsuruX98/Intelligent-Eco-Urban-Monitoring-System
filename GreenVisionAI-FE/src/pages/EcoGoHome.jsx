@@ -6,6 +6,7 @@ import L from 'leaflet';
 import 'leaflet-draw';
 import 'leaflet-draw/dist/leaflet.draw.css';
 import axios from 'axios';
+import { Link } from "react-router-dom";
 
 // Fix for default marker icons in Leaflet
 delete L.Icon.Default.prototype._getIconUrl;
@@ -34,9 +35,11 @@ const EcoGoHome = () => {
                 <li>Receive personalized recommendations to reduce your carbon footprint.</li>
             </ol>
             <div className="mt-8">
-                <button className="bg-green-500 text-white px-6 py-3 rounded-md hover:bg-green-600 transition">
+                <Link to='/ecogo/dashboard'>
+                <button Linkto='/ecogo/dashboard' className="bg-green-500 text-white px-6 py-3 rounded-md hover:bg-green-600 transition">
                     Get Started
                 </button>
+                </Link>
             </div>
         </div>
     );
