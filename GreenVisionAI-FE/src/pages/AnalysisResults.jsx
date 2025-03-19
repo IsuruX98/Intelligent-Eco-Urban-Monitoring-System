@@ -6,6 +6,9 @@ const AnalysisResults = () => {
     const location = useLocation();
     const data = location.state?.data; // Access the data passed via state
 
+    console.log("data", data);
+
+
     const [recommendations, setRecommendations] = useState([]); // State for recommendations
 
     useEffect(() => {
@@ -122,14 +125,25 @@ const AnalysisResults = () => {
 
     const { forecast, segmentation_stats, segmentation_results } = data;
 
+    console.log("segmentation_stats", segmentation_stats['Green Percentage']);
+
+
     // Extract relevant data for charts
     const vegetationDensityData = {
         options: {
             chart: {
                 id: 'vegetation-density-chart',
+                background: 'transparent', // Transparent background
+                foreColor: '#ffffff', // White text color
+            },
+            theme: {
+                mode: 'dark', // Enable dark mode
             },
             labels: ['High Vegetation Density', 'Medium Vegetation Density', 'Low Vegetation Density'],
             colors: ['#00E396', '#FEB019', '#FF4560'],
+            grid: {
+                borderColor: '#333333', // Darker grid lines
+            },
         },
         series: [
             parseFloat(segmentation_stats['High Vegetation Density Coverage']),
@@ -143,13 +157,20 @@ const AnalysisResults = () => {
             chart: {
                 id: 'green-percentage-chart',
                 type: 'radialBar',
+                background: 'transparent', // Transparent background
+                foreColor: '#ffffff', // White text color
+            },
+            theme: {
+                mode: 'dark', // Enable dark mode
             },
             labels: ['Green Percentage'],
             colors: ['#00E396'],
+            grid: {
+                borderColor: '#333333', // Darker grid lines
+            },
         },
         series: [parseFloat(segmentation_stats['Green Percentage'])],
     };
-
     const forecastData = {
         options: {
             chart: {
@@ -173,6 +194,43 @@ const AnalysisResults = () => {
                 data: Object.values(forecast).map(value => parseFloat(value)),
             },
         ],
+    };
+
+    const getHealthStatusBadgeStyle = (ndviScore) => {
+        if (ndviScore >= 0.6) {
+            return "bg-green-500 text-white"; // Healthy
+        } else if (ndviScore >= 0.3) {
+            return "bg-yellow-500 text-gray-800"; // Moderate
+        } else if (ndviScore >= 0) {
+            return "bg-red-500 text-white"; // Poor
+        } else {
+            return "bg-gray-500 text-white"; // No Vegetation
+        }
+    };
+
+    const getHealthStatus = (ndviScore) => {
+        if (ndviScore >= 0.6) {
+            return "Healthy";
+        } else if (ndviScore >= 0.3) {
+            return "Moderate";
+        } else if (ndviScore >= 0) {
+            return "Poor";
+        } else {
+            return "Low Vegetation";
+        }
+    };
+
+    const calculateNDVIFromGreenPercentage = (greenPercentageString) => {
+        const greenPercentage = parseGreenPercentage(greenPercentageString);
+        // Map green percentage (0–100) to NDVI range (-1 to 1)
+        const ndvi = (greenPercentage / 100) * 2 - 1;
+        // Clamp the NDVI value to ensure it stays within -1 to 1
+        return Math.min(Math.max(ndvi, -1), 1);
+    };
+
+    const parseGreenPercentage = (greenPercentageString) => {
+        // Remove the '%' and trim any whitespace, then convert to a number
+        return parseFloat(greenPercentageString.replace('%', '').trim());
     };
 
     const ndviScore = segmentation_stats['NDVI Score'];
@@ -203,12 +261,39 @@ const AnalysisResults = () => {
                 </div>
             </div>
 
-            {/* NDVI Score Card */}
+            {/* Enhanced NDVI Score Card with Dynamic Data and Badge */}
             <div className="mb-8">
                 <h2 className="text-2xl text-green-400 font-semibold mb-4">NDVI Score</h2>
                 <div className="bg-gray-800 p-6 rounded-lg shadow-md">
-                    <p className="text-3xl font-bold text-green-400">{ndviScore}</p>
+                    {/* NDVI Score */}
+                    <p className="text-3xl font-bold text-green-400">
+                        {calculateNDVIFromGreenPercentage(segmentation_stats['Green Percentage'])}
+                    </p>
                     <p className="text-gray-300">Normalized Difference Vegetation Index</p>
+
+                    {/* Additional Details */}
+                    <div className="mt-4">
+                        <p className="text-gray-400">
+                            <span className="font-semibold">Date:</span> {new Date().toLocaleDateString()}
+                        </p>
+                        <p className="text-gray-400">
+                            <span className="font-semibold">Area Covered:</span> SLIIT
+                        </p>
+                        <p className="text-gray-400">
+                            <span className="font-semibold">Health Status:</span>
+                            <span className={`ml-2 px-3 py-1 rounded-full text-sm font-semibold ${getHealthStatusBadgeStyle(calculateNDVIFromGreenPercentage(segmentation_stats['Green Percentage']))}`}>
+                                {getHealthStatus(calculateNDVIFromGreenPercentage(segmentation_stats['Green Percentage']))}
+                            </span>
+                        </p>
+                    </div>
+
+                    {/* Description */}
+                    <div className="mt-4">
+                        <p className="text-gray-400">
+                            The NDVI score ranges from -1 to 1, where values closer to 1 indicate healthier vegetation.
+                            This score helps in assessing the health and density of vegetation in the specified area.
+                        </p>
+                    </div>
                 </div>
             </div>
 
