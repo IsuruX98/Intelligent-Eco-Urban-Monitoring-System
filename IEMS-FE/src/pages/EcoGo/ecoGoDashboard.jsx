@@ -112,16 +112,13 @@ const EcoGoDashboard = ({ userId }) => {
               <div className="grid grid-cols-3 gap-4 text-center">
                 <div className="p-2">
                   <p className="text-gray-400 text-xs">Monthly Savings</p>
-                  <p className="text-green-400 font-bold">$32.80</p>
+                  <p className="text-green-400 font-bold">$2.0</p>
                 </div>
                 <div className="p-2">
                   <p className="text-gray-400 text-xs">CO2 Reduced</p>
-                  <p className="text-green-400 font-bold">18.2 kg</p>
+                  <p className="text-green-400 font-bold">0.8 kg</p>
                 </div>
-                <div className="p-2">
-                  <p className="text-gray-400 text-xs">Tree Equivalent</p>
-                  <p className="text-green-400 font-bold">0.8</p>
-                </div>
+               
               </div>
             </div>
 
@@ -161,35 +158,7 @@ const EcoGoDashboard = ({ userId }) => {
 
           {/* Side panel - 1/3 width on large screens */}
           <div className="space-y-6">
-            {/* CO2 Prediction */}
-            <div className="bg-gray-800 rounded-xl p-6 shadow-lg border border-gray-700">
-              <h2 className="text-xl font-semibold text-gray-200 mb-4">CO2 Emission Prediction</h2>
-              
-              <button
-                onClick={handlePredictCO2}
-                disabled={loading}
-                className="w-full bg-gradient-to-r from-green-600 to-green-500 text-white p-3 rounded-lg hover:from-green-500 hover:to-green-400 focus:outline-none focus:ring-2 focus:ring-green-300 mb-4 flex items-center justify-center disabled:opacity-70"
-              >
-                {loading ? (
-                  <>
-                    <Loader2 size={18} className="animate-spin mr-2" />
-                    Processing...
-                  </>
-                ) : (
-                  <>
-                    <BarChart size={18} className="mr-2" />
-                    Predict CO2 Emission
-                  </>
-                )}
-              </button>
-              
-              {predictedCO2 !== null && (
-                <div className="text-center p-4 bg-gray-700 bg-opacity-50 rounded-lg">
-                  <p className="text-gray-300 mb-1">Predicted CO2 Emission</p>
-                  <p className="text-2xl font-bold text-green-400">{predictedCO2} g/km</p>
-                </div>
-              )}
-            </div>
+           
 
             {/* Quick Actions */}
             <div className="bg-gray-800 rounded-xl p-6 shadow-lg border border-gray-700">
