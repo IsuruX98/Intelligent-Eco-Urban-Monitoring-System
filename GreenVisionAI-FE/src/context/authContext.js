@@ -13,7 +13,7 @@ export const AuthProvider = ({ children }) => {
   // Fetch user details from API
   const fetchUserById = async (userId) => {
     try {
-      const response = await axios.get(`http://127.0.0.1:5000/api/users/${userId}`);
+      const response = await axios.get(`http://127.0.0.1:5001/api/users/${userId}`);
       setUser(response.data);
     } catch (error) {
       console.error("Error fetching user profile:", error.response?.data || error.message);
@@ -35,7 +35,7 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (formData) => {
     try {
-      const response = await axios.post("http://127.0.0.1:5000/api/users/login", formData);
+      const response = await axios.post("http://127.0.0.1:5001/api/users/login", formData);
       
       const userId = response.data.user_id;
       localStorage.setItem("user_id", userId);

@@ -34,7 +34,7 @@ const VirtualGarage = () => {
     setLoading(true);
     try {
       const userId = localStorage.getItem("user_id");
-      const response = await fetch(`http://127.0.0.1:5000/api/vehicles/vehicles/user/${userId}`);
+      const response = await fetch(`http://127.0.0.1:5001/api/vehicles/vehicles/user/${userId}`);
       if (!response.ok) {
         throw new Error("Failed to fetch vehicles");
       }
@@ -62,7 +62,7 @@ const VirtualGarage = () => {
         Fuel_Type: vehicle.Fuel_Type || "Unknown", // Default to "Unknown" if Fuel_Type is missing
       }));
   
-      const response = await fetch("http://127.0.0.1:5000/api/recommend/recommend_vehicle", {
+      const response = await fetch("http://127.0.0.1:5001/api/recommend/recommend_vehicle", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -143,7 +143,7 @@ const VirtualGarage = () => {
     if (window.confirm("Are you sure you want to delete this vehicle?")) {
       try {
         // Make the actual DELETE request to the server
-        const response = await fetch(`http://127.0.0.1:5000/api/vehicles/${vehicleId}`, {
+        const response = await fetch(`http://127.0.0.1:5001/api/vehicles/${vehicleId}`, {
           method: 'DELETE',
           headers: {
             'Content-Type': 'application/json'

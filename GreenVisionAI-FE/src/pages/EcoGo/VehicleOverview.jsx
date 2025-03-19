@@ -13,7 +13,7 @@ const VehicleOverview = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch("http://127.0.0.1:5000/api/recommend/recommendation_llm", {
+      const response = await fetch("http://127.0.0.1:5001/api/recommend/recommendation_llm", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -92,7 +92,6 @@ const VehicleOverview = () => {
             <DetailCard label="Vehicle Name" value={vehicle.vehicle_name} />
             <DetailCard label="Vehicle Type" value={vehicle.vehicle_type} />
             <DetailCard label="Year" value={vehicle.year} />
-            <DetailCard label="Model" value={vehicle.model} />
             <DetailCard label="CO2 Emission" value={`${vehicle.CO2_Emission} g/km`} />
             <DetailCard label="Engine Capacity" value={`${vehicle.Engine_Capacity} cc`} />
             <DetailCard label="Engine Power" value={`${vehicle.Engine_PowerPS} PS`} />
