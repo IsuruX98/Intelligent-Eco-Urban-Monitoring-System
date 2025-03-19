@@ -20,7 +20,7 @@ def create_app():
         print(f" Error connecting to MongoDB: {e}")
 
     # Enable CORS with specific origins
-    CORS(app, resources={r"/api/*": {"origins": "http://localhost:3000", "supports_credentials": True}})  ## https://huggingface.co/datasets/milind27/CO2_Vehicle_Emmisions
+    CORS(app, resources={r"/api/*": {"origins": "http://localhost:3001", "supports_credentials": True}})  ## https://huggingface.co/datasets/milind27/CO2_Vehicle_Emmisions
 
     # Register Blueprints
     from app.routes.vehicleRoute import vehicle_bp
