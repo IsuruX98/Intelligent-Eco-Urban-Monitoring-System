@@ -8,7 +8,8 @@ class Vehicle:
     def to_dict(vehicle):
         if vehicle:
             vehicle['_id'] = str(vehicle['_id'])
-            vehicle['userId'] = str(vehicle['userId'])
+            if 'userId' in vehicle:
+                vehicle['userId'] = str(vehicle['userId'])
             return vehicle
         return None
 

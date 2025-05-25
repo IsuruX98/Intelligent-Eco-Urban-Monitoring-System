@@ -11,7 +11,8 @@ class User:
             "name": data.get("name"),
             "email": data.get("email"),
             "password": generate_password_hash(data.get("password")),
-            "userType": data.get("userType", "driver")
+            "userType": data.get("userType", "driver"),
+            "ecoPoints": 0
         }
         result = User.collection.insert_one(user_data)
         return str(result.inserted_id)
