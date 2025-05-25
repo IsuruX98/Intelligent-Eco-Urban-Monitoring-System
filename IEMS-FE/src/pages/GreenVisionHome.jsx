@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap, useMapEvent } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import { useEffect } from 'react';
@@ -7,6 +7,11 @@ import 'leaflet-draw';
 import 'leaflet-draw/dist/leaflet.draw.css';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import html2canvas from 'html2canvas';
+
+// Mapbox configuration
+const MAPBOX_ACCESS_TOKEN = 'pk.eyJ1IjoiaXp1cnV4OTgiLCJhIjoiY21iM2NscjBvMHVydTJxcHZ2dzFvOXhqbCJ9.X722UIsQ2W3IiWxluew_2Q';
+const MAPBOX_STYLE_URL = 'mapbox://styles/mapbox/satellite-v9';
 
 // Fix for default marker icons in Leaflet
 delete L.Icon.Default.prototype._getIconUrl;
@@ -16,7 +21,7 @@ L.Icon.Default.mergeOptions({
     shadowUrl: require('leaflet/dist/images/marker-shadow.png'),
 });
 
-const RectangleAreaSelector = ({ onSelectArea }) => {
+const RectangleAreaSelector = ({ onSelectArea, onCaptureArea }) => {
     const map = useMap();
 
     useEffect(() => {
@@ -39,18 +44,38 @@ const RectangleAreaSelector = ({ onSelectArea }) => {
 
         map.addControl(drawControl);
 
-        map.on(L.Draw.Event.CREATED, (event) => {
+        map.on(L.Draw.Event.CREATED, async (event) => {
             const layer = event.layer;
             drawnItems.addLayer(layer);
             const bounds = layer.getBounds();
             onSelectArea(bounds);
+
+            try {
+                // Get bounds
+                const sw = bounds.getSouthWest();
+                const ne = bounds.getNorthEast();
+                // Set image size (max 1280x1280 for free tier)
+                const width = 600;
+                const height = 400;
+                // Build Mapbox Static Images API URL
+                const url = `https://api.mapbox.com/styles/v1/mapbox/satellite-v9/static/[${sw.lng},${sw.lat},${ne.lng},${ne.lat}]/${width}x${height}?access_token=${MAPBOX_ACCESS_TOKEN}`;
+                // Fetch the image as a blob
+                const response = await fetch(url);
+                const blob = await response.blob();
+                const imageUrl = URL.createObjectURL(blob);
+                // Create a File object from the blob
+                const file = new File([blob], "selected-area.jpg", { type: "image/jpeg" });
+                onCaptureArea(imageUrl, file);
+            } catch (error) {
+                console.error('Error capturing area:', error);
+            }
         });
 
         return () => {
             map.removeControl(drawControl);
             map.removeLayer(drawnItems);
         };
-    }, [map, onSelectArea]);
+    }, [map, onSelectArea, onCaptureArea]);
 
     return null;
 };
@@ -167,7 +192,11 @@ const GreenVisionHome = () => {
     const [mapZoom, setMapZoom] = useState(13);
     const [isLocationSelected, setIsLocationSelected] = useState(false);
     const [selectionMethod, setSelectionMethod] = useState('rectangle');
+    const [capturedArea, setCapturedArea] = useState(null);
     const navigate = useNavigate();
+
+    console.log(capturedArea);
+
 
     const handleSelectArea = (bounds) => {
         const { _northEast, _southWest } = bounds;
@@ -177,6 +206,23 @@ const GreenVisionHome = () => {
             bounds,
         });
         setIsLocationSelected(true);
+    };
+
+    const handleCaptureArea = (imageUrl, file) => {
+        setCapturedArea(imageUrl);
+        setImageFile(file);
+        console.log('Captured area saved as file:', file);
+    };
+
+    const handleDownloadImage = () => {
+        if (imageFile) {
+            const downloadLink = document.createElement('a');
+            downloadLink.href = URL.createObjectURL(imageFile);
+            downloadLink.download = `selected-area-${new Date().getTime()}.jpg`;
+            document.body.appendChild(downloadLink);
+            downloadLink.click();
+            document.body.removeChild(downloadLink);
+        }
     };
 
     const handlePinDrop = (latlng) => {
@@ -274,11 +320,14 @@ const GreenVisionHome = () => {
                 >
                     <ChangeView center={mapCenter} zoom={mapZoom} />
                     <TileLayer
-                        attribution="Google Maps Satellite"
-                        url="https://www.google.cn/maps/vt?lyrs=s@189&gl=cn&x={x}&y={y}&z={z}"
+                        attribution='© <a href="https://www.mapbox.com/about/maps/">Mapbox</a>'
+                        url={`https://api.mapbox.com/styles/v1/mapbox/satellite-v9/tiles/{z}/{x}/{y}?access_token=${MAPBOX_ACCESS_TOKEN}`}
                     />
                     {selectionMethod === 'rectangle' && (
-                        <RectangleAreaSelector onSelectArea={handleSelectArea} />
+                        <RectangleAreaSelector
+                            onSelectArea={handleSelectArea}
+                            onCaptureArea={handleCaptureArea}
+                        />
                     )}
                     {selectionMethod === 'pin' && (
                         <PinDropHandler onPinDrop={handlePinDrop} />
@@ -295,29 +344,33 @@ const GreenVisionHome = () => {
 
             {isLocationSelected && (
                 <div className="mb-8">
-                    <h2 className="text-2xl text-green-400 font-semibold mb-4">Next Steps</h2>
-                    <p className="text-lg text-gray-300 mb-4">
-                        You have selected a location. Please follow these steps:
-                    </p>
-                    <ol className="list-decimal pl-6 text-gray-300">
-                        <li>Take a screenshot of the selected area on the map.</li>
-                        <li>Upload the screenshot using the file input below.</li>
-                    </ol>
-                    <label className="block mt-4">
-                        <span className="sr-only">Choose file</span>
-                        <input
-                            type="file"
-                            accept="image/*"
-                            onChange={handleImageUpload}
-                            className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-green-500 file:text-white hover:file:bg-green-600"
-                        />
-                    </label>
-                    {imageFile && (
+                    <h2 className="text-2xl text-green-400 font-semibold mb-4">Selected Area</h2>
+                    {capturedArea && (
                         <div className="mt-4">
-                            <h2 className="text-2xl text-green-400 font-semibold mb-4">Uploaded Image</h2>
-                            <img src={URL.createObjectURL(imageFile)} alt="Uploaded Area" className="max-w-full h-auto rounded-lg shadow-md" />
+                            <div className="relative w-full max-w-2xl mx-auto">
+                                <img
+                                    src={capturedArea}
+                                    alt="Selected Area"
+                                    className="w-full h-auto rounded-lg shadow-md border-2 border-green-500"
+                                    style={{ maxHeight: '500px', objectFit: 'contain' }}
+                                />
+                            </div>
+                            <div className="flex justify-between items-center mt-4">
+                                <p className="text-sm text-gray-400">
+                                    Image captured and ready for submission
+                                </p>
+                                <button
+                                    onClick={handleDownloadImage}
+                                    className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition duration-200"
+                                >
+                                    Download Image
+                                </button>
+                            </div>
                         </div>
                     )}
+                    <p className="text-lg text-gray-300 mt-4">
+                        The selected area has been captured. You can download it or proceed with the analysis.
+                    </p>
                 </div>
             )}
 
