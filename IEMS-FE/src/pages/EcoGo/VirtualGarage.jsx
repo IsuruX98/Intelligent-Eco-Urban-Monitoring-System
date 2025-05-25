@@ -13,7 +13,8 @@ import {
   AlertCircle,
   Info,
   Leaf, // Icon for eco-friendly vehicles
-  X // Close icon
+  X, // Close icon
+  FileUp // Add this import
 } from "lucide-react";
 
 const VirtualGarage = () => {
@@ -178,6 +179,10 @@ const VirtualGarage = () => {
 
   const handlePredictCO2 = (vehicleId) => {
     navigate(`/ecogo/predict/${vehicleId}`);
+  };
+
+  const handleUploadCertificate = (vehicleId) => {
+    navigate(`/ecogo/upload-certificate/${vehicleId}`);
   };
 
   return (
@@ -367,6 +372,16 @@ const VirtualGarage = () => {
                         className="flex items-center justify-center bg-green-900 bg-opacity-30 hover:bg-opacity-50 border border-green-800 text-green-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
                       >
                         Predict CO2 Emission
+                      </button>
+                    </div>
+
+                    <div className="mt-4">
+                      <button
+                        onClick={() => handleUploadCertificate(vehicle._id.$oid)}
+                        className="w-full flex items-center justify-center bg-purple-900 bg-opacity-30 hover:bg-opacity-50 border border-purple-800 text-purple-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      >
+                        <FileUp size={16} className="mr-2" />
+                        Upload Eco Certificate
                       </button>
                     </div>
                   </div>

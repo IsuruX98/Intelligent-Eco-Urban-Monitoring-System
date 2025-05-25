@@ -304,11 +304,43 @@ const EcoNavigator = () => {
         }
     };
 
+    // Function to add trip to DB
+    const addTripToDB = async (routeSummary) => {
+        try {
+            const user_id = localStorage.getItem('user_id');
+            if (!user_id || !selectedVehicle || !routeSummary) return;
+            const tripData = {
+                user_id,
+                vehicle_id: selectedVehicle._id.$oid,
+                startLocation,
+                destination: endLocation,
+                distance: Math.round(routeSummary.length / 1000), // in km
+                time: Math.round(routeSummary.duration / 60), // in min
+                co2: Math.round(calculateCO2Emission(routeSummary.length, routeSummary.duration) * 1000) // in g
+            };
+            await fetch('http://127.0.0.1:5001/api/trip/add', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(tripData)
+            });
+        } catch (err) {
+            console.error('Failed to add trip:', err);
+        }
+    };
+
     // Start driving
     const startDriving = () => {
         if (!startCoordsRef.current) {
             alert("Please calculate a route first.");
             return;
+        }
+
+        // Add trip to DB before starting geolocation
+        if (originalRouteDataRef.current) {
+            addTripToDB({
+                length: originalRouteDataRef.current.distance,
+                duration: originalRouteDataRef.current.duration
+            });
         }
 
         if (watchIdRef.current !== null) {
@@ -479,39 +511,39 @@ const EcoNavigator = () => {
     return (
         <div className="h-screen flex flex-col bg-gradient-to-b from-gray-900 to-black text-white">
             {/* Control Panel */}
-            <div className="bg-gray-800 shadow-md p-4">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+            <div className="bg-gray-800/90 shadow-xl border-b border-gray-700 p-4 md:p-6 rounded-b-3xl">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-4 md:mb-6">
                     <div className="flex flex-col">
-                        <label className="text-sm font-medium text-gray-200 mb-1">Starting Location:</label>
+                        <label className="text-xs md:text-sm font-semibold text-gray-300 mb-1 md:mb-2">Starting Location</label>
                         <input
                             type="text"
                             value={startLocation}
                             onChange={(e) => setStartLocation(e.target.value)}
                             placeholder="e.g., Colombo, Sri Lanka"
-                            className="p-2 border border-gray-700 rounded bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                            className="p-2 md:p-3 border border-gray-700 rounded-lg bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent shadow-sm text-sm md:text-base"
                         />
                     </div>
 
                     <div className="flex flex-col">
-                        <label className="text-sm font-medium text-gray-200 mb-1">Destination:</label>
+                        <label className="text-xs md:text-sm font-semibold text-gray-300 mb-1 md:mb-2">Destination</label>
                         <input
                             type="text"
                             value={endLocation}
                             onChange={(e) => setEndLocation(e.target.value)}
                             placeholder="e.g., Galle, Sri Lanka"
-                            className="p-2 border border-gray-700 rounded bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                            className="p-2 md:p-3 border border-gray-700 rounded-lg bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent shadow-sm text-sm md:text-base"
                         />
                     </div>
 
                     <div className="flex flex-col">
-                        <label className="text-sm font-medium text-gray-200 mb-1">Vehicle:</label>
+                        <label className="text-xs md:text-sm font-semibold text-gray-300 mb-1 md:mb-2">Vehicle</label>
                         <select
                             value={selectedVehicle ? selectedVehicle._id.$oid : ''}
                             onChange={(e) => {
                                 const selected = vehicles.find(v => v._id.$oid === e.target.value);
                                 setSelectedVehicle(selected);
                             }}
-                            className="p-2 border border-gray-700 rounded bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                            className="p-2 md:p-3 border border-gray-700 rounded-lg bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent shadow-sm text-sm md:text-base"
                         >
                             {vehicles.map(vehicle => (
                                 <option key={vehicle._id.$oid} value={vehicle._id.$oid}>
@@ -522,10 +554,10 @@ const EcoNavigator = () => {
                     </div>
                 </div>
 
-                <div className="flex flex-wrap justify-center gap-2 mb-3">
+                <div className="flex flex-wrap justify-center gap-2 md:gap-3 mb-3 md:mb-4">
                     <button
                         onClick={() => calculateRoute()}
-                        className="px-4 py-2 bg-gradient-to-r from-green-600 to-green-500 text-white rounded hover:from-green-500 hover:to-green-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 transition"
+                        className="px-4 md:px-6 py-2 bg-gradient-to-r from-green-600 to-green-500 text-white rounded-lg font-semibold shadow hover:from-green-500 hover:to-green-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 transition text-sm md:text-base"
                     >
                         Calculate Route
                     </button>
@@ -533,35 +565,34 @@ const EcoNavigator = () => {
                     {showDriveButton && (
                         <button
                             onClick={startDriving}
-                            className="px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-500 text-white rounded hover:from-blue-500 hover:to-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition"
+                            className="px-4 md:px-6 py-2 bg-gradient-to-r from-blue-600 to-blue-500 text-white rounded-lg font-semibold shadow hover:from-blue-500 hover:to-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition text-sm md:text-base"
                         >
                             Drive Now
                         </button>
                     )}
                 </div>
 
-                <div className="text-sm text-gray-300 text-center" dangerouslySetInnerHTML={{ __html: routeInfo }}></div>
+                <div className="text-xs md:text-base text-gray-200 text-center font-medium min-h-[24px] md:min-h-[28px]" dangerouslySetInnerHTML={{ __html: routeInfo }}></div>
             </div>
 
             {/* Map Container */}
-            <div className="flex-grow relative">
+            <div className="flex-grow relative rounded-2xl md:rounded-3xl overflow-hidden shadow-2xl border border-gray-800 m-2 md:m-4">
                 <div
                     ref={mapRef}
-                    className="absolute inset-0 w-full h-full"
-                    style={{ minHeight: "400px" }}
+                    className="absolute inset-0 w-full h-full min-h-[250px] md:min-h-[400px] bg-gray-900/80"
                 ></div>
                 {!isMapReady && (
-                    <div className="absolute inset-0 flex items-center justify-center bg-gray-900">
-                        <p className="text-lg font-medium text-gray-400">Loading map...</p>
+                    <div className="absolute inset-0 flex items-center justify-center bg-gray-900/90 z-10">
+                        <p className="text-base md:text-lg font-semibold text-gray-400">Loading map...</p>
                     </div>
                 )}
             </div>
 
             {/* Eco Dashboard */}
-            <div className="fixed bottom-4 right-4 bg-gray-800 p-3 rounded shadow-lg border border-gray-700 z-10">
-                <p className="text-sm font-medium text-gray-200">Eco-Points: <span className="font-bold text-green-400">{ecoPoints}</span></p>
-                <p className="text-sm font-medium text-gray-200">CO2 Saved (Trip): <span className="font-bold text-green-400">{co2SavedTrip}</span> kg</p>
-                <p className="text-sm font-medium text-gray-200">Community CO2 Saved: <span className="font-bold text-green-400">{communityCO2}</span> kg</p>
+            <div className="fixed bottom-2 right-2 md:bottom-6 md:right-6 bg-gray-900/95 p-3 md:p-5 rounded-xl md:rounded-2xl shadow-2xl border border-green-700 z-20 backdrop-blur-md w-[90vw] max-w-xs md:max-w-sm">
+                <p className="text-sm md:text-base font-semibold text-gray-200 mb-1">Eco-Points: <span className="font-bold text-green-400">{ecoPoints}</span></p>
+                <p className="text-sm md:text-base font-semibold text-gray-200 mb-1">CO2 Saved (Trip): <span className="font-bold text-green-400">{co2SavedTrip}</span> kg</p>
+                <p className="text-sm md:text-base font-semibold text-gray-200">Community CO2 Saved: <span className="font-bold text-green-400">{communityCO2}</span> kg</p>
             </div>
         </div>
     );
