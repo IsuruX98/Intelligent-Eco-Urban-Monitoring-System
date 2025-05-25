@@ -89,3 +89,53 @@ class LLMService:
             )
         }]
     }
+
+    def extract_co2_from_text(self, ocr_text):
+        """
+        Sends OCR text from an eco certificate to the LLM API to extract the CO2 emission value.
+
+        Args:
+            ocr_text (str): The OCR-extracted text from the certificate image.
+
+        Returns:
+            dict: Response from the LLM API containing the extracted CO2 value or error message.
+        """
+        if not isinstance(ocr_text, str):
+            logging.error("Invalid input: ocr_text must be a string.")
+            return {"error": "Invalid input format."}
+
+        # Log the OCR output for debugging
+        logging.info(f"OCR Output Received:\n{ocr_text}")
+
+        payload = {
+            "model": "llama-3.3-70b-versatile",
+            "max_tokens": 20,  # Only need a short answer
+            "messages": [{
+                "role": "user",
+                "content": (
+                    "The following text contains a table from a vehicle emission certificate. "
+                    "The columns are: UNIT, r/min, ppm v/v, %v/v (CO), %v/v (CO2), %v/v (O2), STATUS. "
+                    "Extract the value for CO2 (%v/v) from the row labeled 'TDEL' or 'IDEL'. Only return the number. Text:\n\n" + ocr_text
+                )
+            }]
+        }
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {self.api_key}"
+        }
+
+        for attempt in range(self.max_retries):
+            try:
+                response = requests.post(self.api_url, json=payload, headers=headers, timeout=self.timeout)
+                if response.status_code == 200:
+                    return response.json()
+                else:
+                    logging.error(f"LLM API failed with status code {response.status_code}: {response.text}")
+                    return {"error": f"LLM API call failed with status {response.status_code}: {response.text}"}
+            except requests.exceptions.Timeout:
+                logging.warning(f"Request timed out (Attempt {attempt + 1}/{self.max_retries}). Retrying...")
+                sleep(2)
+            except requests.exceptions.RequestException as e:
+                logging.error(f"An error occurred: {e}")
+                return {"error": f"Request failed with error: {e}"}
+        return {"error": "Max retries reached. Could not get a response from LLM API."}
