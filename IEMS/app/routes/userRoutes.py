@@ -49,3 +49,10 @@ def get_user_eco_data(user_id):
         return jsonify({"message": "User not found"}), 404
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+@user_bp.route('/eco_points/<user_id>', methods=['GET'])
+def get_user_eco_points(user_id):
+    user = UserService.get_user(user_id)
+    if user:
+        return jsonify({'ecoPoints': user.get('ecoPoints', 0)}), 200
+    return jsonify({'error': 'User not found'}), 404

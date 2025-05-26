@@ -9,6 +9,7 @@ const AddVehicle = () => {
     user_id: "",
     vehicle_name: "",
     vehicle_type: "",
+    fuelType: "",
     year: "",
   });
   const [alert, setAlert] = useState({
@@ -54,6 +55,7 @@ const AddVehicle = () => {
         user_id: localStorage.getItem("user_id") || "",
         vehicle_name: "",
         vehicle_type: "",
+        fuelType: "",
         year: "",
       });
       
@@ -124,6 +126,25 @@ const AddVehicle = () => {
               <option value="Truck">Truck</option>
               <option value="Coupe">Coupe</option>
               <option value="Hatchback">Hatchback</option>
+            </select>
+          </div>
+
+          <div className="mb-6">
+            <label htmlFor="fuelType" className="block text-gray-300 font-semibold mb-2">Fuel Type</label>
+            <select
+              id="fuelType"
+              name="fuelType"
+              value={vehicleData.fuelType}
+              onChange={handleInputChange}
+              className="w-full h-12 px-4 border border-gray-600 rounded-lg bg-gray-700 text-white focus:ring-2 focus:ring-green-500 focus:outline-none"
+              required
+            >
+              <option value="">Select Fuel Type</option>
+              <option value="Petrol">Petrol</option>
+              <option value="Diesel">Diesel</option>
+              <option value="Electric">Electric</option>
+              <option value="Hybrid">Hybrid</option>
+              <option value="LPG">LPG</option>
             </select>
           </div>
 
