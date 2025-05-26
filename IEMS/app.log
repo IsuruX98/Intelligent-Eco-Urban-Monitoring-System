@@ -6235,3 +6235,5 @@ Kirulapone 1,400.00 ; 8.
 
 2025-05-26 08:48:37,272 INFO 127.0.0.1 - - [26/May/2025 08:48:37] "POST /api/co2/extract_co2_from_certificate HTTP/1.1" 200 -
 2025-05-26 08:48:43,487 INFO 127.0.0.1 - - [26/May/2025 08:48:43] "GET /api/vehicles/vehicles/user/68310f45e9e66d475db0a2d0 HTTP/1.1" 200 -
+2025-05-26 11:14:24,047 INFO 127.0.0.1 - - [26/May/2025 11:14:24] "GET /api/users/68310f45e9e66d475db0a2d0 HTTP/1.1" 200 -
+2025-05-26 11:14:24,180 INFO 127.0.0.1 - - [26/May/2025 11:14:24] "GET /api/users/68310f45e9e66d475db0a2d0 HTTP/1.1" 200 -
