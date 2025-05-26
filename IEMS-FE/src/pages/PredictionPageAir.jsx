@@ -5,6 +5,9 @@ const PredictionPageAir = () => {
   const [longitude, setLongitude] = useState(null);
   const [date, setDate] = useState('');
   const [dateError, setDateError] = useState('');
+  const [predictionResult, setPredictionResult] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
   const mapRef = useRef(null);
 
   useEffect(() => {
@@ -36,6 +39,9 @@ const PredictionPageAir = () => {
         draggable: true,
       });
 
+      setLatitude(center.lat);
+      setLongitude(center.lng);
+
       marker.addListener('dragend', () => {
         setLatitude(marker.getPosition().lat());
         setLongitude(marker.getPosition().lng());
@@ -52,7 +58,7 @@ const PredictionPageAir = () => {
       initMap();
     } else {
       const script = document.createElement('script');
-      script.src = `https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=initMap`;
+      script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyB1IGr0WmaabcIu7OOLwoc5Rt-PTqCjb7E&callback=initMap`;
       script.defer = true;
       document.head.appendChild(script);
       window.initMap = initMap;
@@ -73,20 +79,47 @@ const PredictionPageAir = () => {
     return '';
   };
 
-  const handlePredict = () => {
+  const handlePredict = async () => {
+    setPredictionResult(null);
+    setError('');
     if (dateError) {
-      console.error('Date validation failed:', dateError);
+      setError(dateError);
+      return;
+    }
+    if (latitude === null || longitude === null || date === '') {
+      setError('Please select location and date.');
       return;
     }
 
     const predictionData = {
       latitude: latitude,
       longitude: longitude,
-      date: date,
+      date: date + " 12:00:00" // adding time to match backend format
     };
 
-    console.log('Prediction Data:', predictionData);
-    // Send predictionData to backend API
+    setLoading(true);
+
+    try {
+      const response = await fetch('http://127.0.0.1:5000/predict_air_quality', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(predictionData),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setPredictionResult(data.predicted_aqi.toFixed(2));
+      } else {
+        setError(data.error || 'Prediction failed');
+      }
+    } catch (err) {
+      setError('Server error or unable to reach backend');
+    }
+
+    setLoading(false);
   };
 
   return (
@@ -99,8 +132,6 @@ const PredictionPageAir = () => {
           Select a location on the map and a future date to see the predicted air quality.
         </p>
       </div>
-
-      
 
       <div ref={mapRef} style={{ height: '400px', width: '100%' }}></div>
 
@@ -145,9 +176,18 @@ const PredictionPageAir = () => {
         <button
           onClick={handlePredict}
           className="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-2 rounded-md"
+          disabled={loading}
         >
-          Predict
+          {loading ? 'Predicting...' : 'Predict'}
         </button>
+
+        {error && <p className="text-red-500 mt-4">{error}</p>}
+
+        {predictionResult !== null && (
+          <div className="mt-6 p-4 bg-green-700 rounded-md text-center text-xl font-semibold">
+            Predicted AQI: {predictionResult}
+          </div>
+        )}
       </div>
     </div>
   );
