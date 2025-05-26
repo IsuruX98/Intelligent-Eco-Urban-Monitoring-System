@@ -21,7 +21,7 @@ def create_app():
         raise e  # Re-raise the exception to prevent app from starting with failed DB connection
 
     # Enable CORS with specific origins
-    CORS(app, resources={r"/api/*": {"origins": "http://localhost:3000", "supports_credentials": True}})  ## https://huggingface.co/datasets/milind27/CO2_Vehicle_Emmisions
+    CORS(app, resources={r"/api/*": {"origins": ["http://localhost:3000", "https://intelligent-eco-urban-monitoring-system.vercel.app"], "supports_credentials": True}})
 
     # Import and register blueprints after MongoDB is initialized
     with app.app_context():
