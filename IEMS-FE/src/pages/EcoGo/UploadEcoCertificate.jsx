@@ -83,24 +83,10 @@ const UploadEcoCertificate = () => {
         body: formData,
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to upload certificate');
-      }
-
-      const data = await response.json();
-      
-      if (data.success) {
-        setAlert({
-          show: true,
-          message: 'Certificate uploaded successfully! CO2 emission has been updated.',
-          type: 'success'
-        });
-        
-        // Redirect back to virtual garage after successful upload
-        setTimeout(() => {
-          navigate('/ecogo/virtualGarage');
-        }, 2000);
+      if (response.ok) {
+        navigate('/ecogo/virtualGarage');
       } else {
+        const data = await response.json();
         throw new Error(data.message || 'Failed to process certificate');
       }
 
