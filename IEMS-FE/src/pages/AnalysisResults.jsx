@@ -174,6 +174,15 @@ const AnalysisResults = () => {
         generateRecommendations(data);
     }, [data]); // Re-run when `data` changes
 
+    // Scroll to top when component mounts
+    useEffect(() => {
+        window.scrollTo({
+            top: 0,
+            left: 0,
+            behavior: 'smooth'
+        });
+    }, []);
+
     if (!data) {
         return <div>No data available</div>;
     }
