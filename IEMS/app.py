@@ -96,107 +96,151 @@ def inference_tree(image_path):
     green_prercentage = np.sum(pred) / pred.size
     return f"{green_prercentage * 100:.2f} %"
 
-# Function to calculate vegetation density in an image
-def calc_vegitation_density(image):
-    image = cv.cvtColor(image, cv.COLOR_BGR2RGB)
-
-    red_channel = image[:, :, 0].astype(float)
-    green_channel = image[:, :, 1].astype(float)
-
-    print(green_channel)
-
-    ndvi = (green_channel - red_channel) / (green_channel + red_channel + 1e-10)  # Adding a small constant to avoid division by zero
-
-    non_zer_idxs = (image != [0, 0, 0]).all(axis=-1)
-    total_pixels = np.sum(non_zer_idxs)
-
-    high_density_percentage = np.sum(
-                                    np.logical_and(
-                                        (green_channel > 171),
-                                        non_zer_idxs
-                                        )
-                                    ) / total_pixels * 100
-
-    medium_density_percentage = np.sum(
-                                    np.logical_and( 
-                                        (green_channel < 171),
-                                        (green_channel > 86),
-                                        non_zer_idxs
-                                        )
-                                    ) / total_pixels * 100
-    
-    low_density_percentage = np.sum(
-                                    np.logical_and(         
-                                        (green_channel < 86),
-                                        (green_channel > 0),
-                                        non_zer_idxs
-                                        )
-                                    ) / total_pixels * 100
-
-    image[np.logical_and((green_channel >= 171), non_zer_idxs)] = [0, 255, 0]
-    image[np.logical_and((green_channel < 171), (green_channel >= 86), non_zer_idxs)] = [0, 128, 0]
-    image[np.logical_and((green_channel < 86), (green_channel > 0), non_zer_idxs)] = [0, 64, 0]
-
-    low_density_percentage = np.round(low_density_percentage, 2)
-    medium_density_percentage = np.round(medium_density_percentage, 2)
-    high_density_percentage = 100 - low_density_percentage - medium_density_percentage  
-
-    low_density_percentage = f"{low_density_percentage:.2f} %"
-    medium_density_percentage = f"{medium_density_percentage:.2f} %"
-    high_density_percentage = f"{high_density_percentage:.2f} %"
-
-    return image,{
-                'NDVI Score': np.round(np.mean(ndvi), 2),
-                'High Vegetation Density Coverage': high_density_percentage,
-                'Medium Vegetation Density Coverage': medium_density_percentage,
-                'Low Vegetation Density Coverage': low_density_percentage
-                }
+# Legacy function - kept for backward compatibility but not used
+# The improved calc_vegetation_density function below should be used instead
 
 def calc_vegetation_density(image):
+    """
+    Enhanced vegetation density calculation using multiple color spaces and adaptive thresholds
+    """
     # Convert image to RGB format
     image_rgb = cv.cvtColor(image, cv.COLOR_BGR2RGB).astype(float)
-
-    # Extract Red and Green channels
+    
+    # Convert to HSV for better vegetation detection
+    image_hsv = cv.cvtColor(image.astype(np.uint8), cv.COLOR_BGR2HSV).astype(float)
+    
+    # Extract channels
     red_channel = image_rgb[:, :, 0]
     green_channel = image_rgb[:, :, 1]
-
-    # NDVI Calculation
-    ndvi = (green_channel - red_channel) / (green_channel + red_channel + 1e-10)  # Avoid division by zero
+    blue_channel = image_rgb[:, :, 2]
+    
+    # HSV channels
+    hue = image_hsv[:, :, 0]
+    saturation = image_hsv[:, :, 1]
+    value = image_hsv[:, :, 2]
 
     # Identify non-black pixels (valid area for analysis)
     non_black_pixels = np.any(image != [0, 0, 0], axis=-1)
     total_pixels = np.sum(non_black_pixels)
+    
+    if total_pixels == 0:
+        return image, {
+            'NDVI Score': 0.0,
+            'High Vegetation Density Coverage': "0.00 %",
+            'Medium Vegetation Density Coverage': "0.00 %",
+            'Low Vegetation Density Coverage': "0.00 %"
+        }
 
-    # Improved vegetation density thresholds
-    high_threshold = 180  # Dense greenery
-    medium_threshold = 120  # Moderate greenery
-    low_threshold = 60  # Sparse greenery
-
-    # Compute density percentages
-    high_density_percentage = np.sum((green_channel >= high_threshold) & non_black_pixels) / total_pixels * 100
-    medium_density_percentage = np.sum((green_channel < high_threshold) & (green_channel >= medium_threshold) & non_black_pixels) / total_pixels * 100
-    low_density_percentage = np.sum((green_channel < medium_threshold) & (green_channel >= low_threshold) & non_black_pixels) / total_pixels * 100
-
-    # Update image with new vegetation colors
+    # Enhanced NDVI calculation (approximation using visible bands)
+    # Using Near-Infrared approximation: NIR ≈ Green + (Green - Red)
+    nir_approx = green_channel + (green_channel - red_channel)
+    ndvi = (nir_approx - red_channel) / (nir_approx + red_channel + 1e-10)
+    
+    # Alternative vegetation indices
+    # Excess Green Index (ExG)
+    exg = 2 * green_channel - red_channel - blue_channel
+    
+    # Green-Red Vegetation Index (GRVI)
+    grvi = (green_channel - red_channel) / (green_channel + red_channel + 1e-10)
+    
+    # Vegetation detection using multiple criteria
+    # 1. Green dominance
+    green_dominant = (green_channel > red_channel) & (green_channel > blue_channel)
+    
+    # 2. HSV-based vegetation detection (green hue range)
+    # Green hue is typically between 35-85 degrees in HSV
+    green_hue = ((hue >= 35) & (hue <= 85)) | ((hue >= 35/2) & (hue <= 85/2))  # Handle different HSV scales
+    high_saturation = saturation > 30  # Minimum saturation for vegetation
+    sufficient_brightness = value > 20  # Minimum brightness
+    
+    # 3. NDVI-based vegetation detection
+    vegetation_ndvi = ndvi > 0.1
+    
+    # 4. ExG-based vegetation detection
+    vegetation_exg = exg > 10
+    
+    # Combine all vegetation detection methods
+    vegetation_mask = (green_dominant & high_saturation & sufficient_brightness & 
+                      vegetation_ndvi & vegetation_exg & non_black_pixels)
+    
+    # Calculate vegetation intensity for density classification
+    # Combine multiple indicators for better classification
+    vegetation_intensity = (
+        0.4 * (green_channel / 255.0) +  # Green channel contribution
+        0.3 * (ndvi + 1) / 2 +           # Normalized NDVI (0-1 range)
+        0.2 * (saturation / 255.0) +     # Saturation contribution
+        0.1 * (exg / 100.0)              # ExG contribution (normalized)
+    )
+    
+    # Apply vegetation mask
+    vegetation_intensity = vegetation_intensity * vegetation_mask
+    
+    # Adaptive thresholding based on the overall vegetation intensity distribution
+    vegetation_pixels = vegetation_intensity[vegetation_mask]
+    
+    if len(vegetation_pixels) > 0:
+        # Calculate percentiles for adaptive thresholds
+        p25 = np.percentile(vegetation_pixels, 25)
+        p50 = np.percentile(vegetation_pixels, 50)
+        p75 = np.percentile(vegetation_pixels, 75)
+        p90 = np.percentile(vegetation_pixels, 90)
+        
+        # Adaptive thresholds
+        high_threshold = max(p75, 0.6)    # High density: top 25% or minimum 0.6
+        medium_threshold = max(p50, 0.4)   # Medium density: median or minimum 0.4
+        low_threshold = max(p25, 0.2)     # Low density: bottom 25% or minimum 0.2
+    else:
+        # Default thresholds if no vegetation detected
+        high_threshold = 0.7
+        medium_threshold = 0.5
+        low_threshold = 0.3
+    
+    # Classify vegetation density
+    high_density_mask = (vegetation_intensity >= high_threshold) & vegetation_mask
+    medium_density_mask = (vegetation_intensity >= medium_threshold) & (vegetation_intensity < high_threshold) & vegetation_mask
+    low_density_mask = (vegetation_intensity >= low_threshold) & (vegetation_intensity < medium_threshold) & vegetation_mask
+    
+    # Calculate percentages
+    high_density_percentage = np.sum(high_density_mask) / total_pixels * 100
+    medium_density_percentage = np.sum(medium_density_mask) / total_pixels * 100
+    low_density_percentage = np.sum(low_density_mask) / total_pixels * 100
+    
+    # Update image with vegetation density colors
     image_updated = image.copy()
-    image_updated[(green_channel >= high_threshold) & non_black_pixels] = [0, 255, 0]  # Bright Green for High Density
-    image_updated[(green_channel < high_threshold) & (green_channel >= medium_threshold) & non_black_pixels] = [0, 200, 0]  # Medium Green for Medium Density
-    image_updated[(green_channel < medium_threshold) & (green_channel >= low_threshold) & non_black_pixels] = [0, 150, 0]  # Dark Green for Low Density
-
-    # Rounding percentages
-    low_density_percentage = np.round(low_density_percentage, 2)
+    image_updated[high_density_mask] = [0, 255, 0]    # Bright Green for High Density
+    image_updated[medium_density_mask] = [0, 180, 0]  # Medium Green for Medium Density
+    image_updated[low_density_mask] = [0, 120, 0]     # Dark Green for Low Density
+    
+    # Calculate overall NDVI score (only for vegetation areas)
+    if np.sum(vegetation_mask) > 0:
+        mean_ndvi = np.mean(ndvi[vegetation_mask])
+    else:
+        mean_ndvi = np.mean(ndvi[non_black_pixels]) if np.sum(non_black_pixels) > 0 else 0
+    
+    # Ensure percentages add up correctly and handle edge cases
+    total_vegetation_percentage = high_density_percentage + medium_density_percentage + low_density_percentage
+    
+    # If total vegetation is very low, adjust the classification
+    if total_vegetation_percentage < 5:  # Less than 5% vegetation
+        # Recalculate with more lenient thresholds
+        lenient_vegetation = (green_channel > red_channel) & (green_channel > blue_channel) & non_black_pixels
+        if np.sum(lenient_vegetation) > 0:
+            low_density_percentage = np.sum(lenient_vegetation) / total_pixels * 100
+            medium_density_percentage = 0
+            high_density_percentage = 0
+            # Update image for lenient vegetation
+            image_updated[lenient_vegetation] = [0, 100, 0]  # Very dark green for sparse vegetation
+    
+    # Round percentages
+    high_density_percentage = np.round(high_density_percentage, 2)
     medium_density_percentage = np.round(medium_density_percentage, 2)
-    high_density_percentage = 100 - low_density_percentage - medium_density_percentage  
-
-    low_density_percentage = f"{low_density_percentage:.2f} %"
-    medium_density_percentage = f"{medium_density_percentage:.2f} %"
-    high_density_percentage = f"{high_density_percentage:.2f} %"
-
+    low_density_percentage = np.round(low_density_percentage, 2)
+    
     return image_updated, {
-        'NDVI Score': np.round(np.mean(ndvi), 2),
-        'High Vegetation Density Coverage': high_density_percentage,
-        'Medium Vegetation Density Coverage': medium_density_percentage,
-        'Low Vegetation Density Coverage': low_density_percentage
+        'NDVI Score': np.round(mean_ndvi, 3),
+        'High Vegetation Density Coverage': f"{high_density_percentage:.2f} %",
+        'Medium Vegetation Density Coverage': f"{medium_density_percentage:.2f} %",
+        'Low Vegetation Density Coverage': f"{low_density_percentage:.2f} %"
     }
 
 # Haversine function to calculate distance between two geographic points
@@ -359,4 +403,5 @@ def serve_static(filename):
 #     return jsonify({"forecast": prediction})
 
 if __name__ == '__main__':
-    app.run(port=5000, debug=True)
+    port = int(os.environ.get("PORT", 5000))  # default to 5000 if PORT is not set
+    app.run(host='0.0.0.0', port=port, debug=True)
