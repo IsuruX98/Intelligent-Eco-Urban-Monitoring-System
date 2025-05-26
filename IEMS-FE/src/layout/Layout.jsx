@@ -4,13 +4,15 @@ import Navbar from "../components/NavBar/Navbar";
 import Footer from "../components/Footer/Footer";
 
 const Layout = () => {
-  return (
-    <div>
-      <Navbar />
-      <Router />
-      <Footer />
-    </div>
-  );
+    return (
+        <div className="min-h-screen flex flex-col">
+            <Navbar />
+            <main className="flex-grow">
+                <Router />
+            </main>
+            <Footer />
+        </div>
+    );
 };
 
 export default Layout;

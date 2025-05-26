@@ -1,5 +1,5 @@
 import React from "react";
-import { Routes, Route } from "react-router-dom"; // Import useNavigate
+import { Routes, Route } from "react-router-dom";
 import Home from "../pages/Home";
 import GreenVisionHome from "../pages/GreenVisionHome";
 import EcoSensorHome from "../pages/EcoSensorHome";
@@ -15,25 +15,33 @@ import EcoNavigator from "../pages/EcoGo/EcoNavigator";
 import AnalysisResults from "../pages/AnalysisResults";
 import UploadEcoCertificate from "../pages/EcoGo/UploadEcoCertificate";
 
-const AppRouter = () => {
-  return (
-    <Routes>
-      <Route path="/" element={<Home />} />
-      <Route path="/green-vision" element={<GreenVisionHome />} />
-      <Route path="/eco-sensor" element={<EcoSensorHome />} />
-      <Route path="/noise-guard" element={<NoiseGuardHome />} />
-      <Route path="/eco-go" element={<EcoGoHome />} />
-      <Route path="/ecogo/navigator" element={<EcoNavigator />} />
-      <Route path="/ecogo/dashboard" element={<EcoGoDashboard />} />
-      <Route path="ecogo/addVehicle" element={<AddVehicle />} />
-      <Route path="ecogo/predict/:vehicleId" element={<CO2Prediction />} />
-      <Route path="ecogo/virtualGarage" element={<VirtualGarage />} />
-      <Route path="ecogo/vehicleOverview" element={<VehicleOverview />} />
-      <Route path="ecogo/upload-certificate/:vehicleId" element={<UploadEcoCertificate />} />
-      <Route path="/predict-air" element={<PredictionPageAir/>} />
-      <Route path="/analysis-results" element={<AnalysisResults />} />
-    </Routes>
-  );
+// Export the routes configuration separately
+export const routes = [
+    { path: "/", element: Home },
+    { path: "/green-vision", element: GreenVisionHome },
+    { path: "/eco-sensor", element: EcoSensorHome },
+    { path: "/noise-guard", element: NoiseGuardHome },
+    { path: "/eco-go", element: EcoGoHome },
+    { path: "/ecogo/navigator", element: EcoNavigator },
+    { path: "/ecogo/dashboard", element: EcoGoDashboard },
+    { path: "ecogo/addVehicle", element: AddVehicle },
+    { path: "ecogo/predict/:vehicleId", element: CO2Prediction },
+    { path: "ecogo/virtualGarage", element: VirtualGarage },
+    { path: "ecogo/vehicleOverview", element: VehicleOverview },
+    { path: "ecogo/upload-certificate/:vehicleId", element: UploadEcoCertificate },
+    { path: "/predict-air", element: PredictionPageAir },
+    { path: "/analysis-results", element: AnalysisResults }
+];
+
+// Create the router component
+const Router = () => {
+    return (
+        <Routes>
+            {routes.map(({ path, element: Element }) => (
+                <Route key={path} path={path} element={<Element />} />
+            ))}
+        </Routes>
+    );
 };
 
-export default AppRouter;
+export default Router;

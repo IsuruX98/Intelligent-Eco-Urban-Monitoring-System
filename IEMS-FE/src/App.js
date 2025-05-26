@@ -1,20 +1,19 @@
 import React from "react";
-import Layout from "./layout/Layout";
-import { AuthProvider } from "./context/authContext";
 import { BrowserRouter } from "react-router-dom";
+import { AuthProvider } from "./context/authContext";
 import { ReactNotifications } from "react-notifications-component";
+import Layout from "./layout/Layout";
 import "leaflet/dist/leaflet.css";
+import "react-notifications-component/dist/theme.css";
 
 const App = () => {
   return (
-    <div>
-      <BrowserRouter>
-        <ReactNotifications />
-        <AuthProvider>
-          <Layout />
-        </AuthProvider>
-      </BrowserRouter>
-    </div>
+    <BrowserRouter>
+      <ReactNotifications />
+      <AuthProvider>
+        <Layout />
+      </AuthProvider>
+    </BrowserRouter>
   );
 };
 
