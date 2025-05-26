@@ -6164,3 +6164,74 @@ Kirulapone 1,400.00 ; 8.
 2025-05-26 08:41:18,349 WARNING  * Debugger is active!
 2025-05-26 08:41:18,353 INFO  * Debugger PIN: 321-137-201
 2025-05-26 08:41:30,298 INFO 127.0.0.1 - - [26/May/2025 08:41:30] "[35m[1mPOST /api/co2/extract_co2_from_certificate HTTP/1.1[0m" 500 -
+2025-05-26 08:44:40,618 INFO Test log from run.py
+2025-05-26 08:44:55,209 INFO [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5001
+2025-05-26 08:44:55,210 INFO [33mPress CTRL+C to quit[0m
+2025-05-26 08:44:55,212 INFO  * Restarting with stat
+2025-05-26 08:44:55,868 INFO Test log from run.py
+2025-05-26 08:44:58,079 WARNING  * Debugger is active!
+2025-05-26 08:44:58,085 INFO  * Debugger PIN: 321-137-201
+2025-05-26 08:46:27,885 INFO 127.0.0.1 - - [26/May/2025 08:46:27] "GET /api/users/68310f45e9e66d475db0a2d0 HTTP/1.1" 200 -
+2025-05-26 08:46:28,013 INFO 127.0.0.1 - - [26/May/2025 08:46:28] "GET /api/users/68310f45e9e66d475db0a2d0 HTTP/1.1" 200 -
+2025-05-26 08:46:46,722 INFO 127.0.0.1 - - [26/May/2025 08:46:46] "OPTIONS /api/users/login HTTP/1.1" 200 -
+2025-05-26 08:46:46,911 INFO 127.0.0.1 - - [26/May/2025 08:46:46] "POST /api/users/login HTTP/1.1" 200 -
+2025-05-26 08:46:47,042 INFO 127.0.0.1 - - [26/May/2025 08:46:47] "GET /api/users/68310f45e9e66d475db0a2d0 HTTP/1.1" 200 -
+2025-05-26 08:46:58,505 INFO 127.0.0.1 - - [26/May/2025 08:46:58] "GET /api/users/eco_points/68310f45e9e66d475db0a2d0 HTTP/1.1" 200 -
+2025-05-26 08:46:59,212 INFO 127.0.0.1 - - [26/May/2025 08:46:59] "GET /api/trip/all HTTP/1.1" 200 -
+2025-05-26 08:47:58,870 INFO 127.0.0.1 - - [26/May/2025 08:47:58] "GET /api/vehicles/vehicles/user/68310f45e9e66d475db0a2d0 HTTP/1.1" 200 -
+2025-05-26 08:48:36,195 INFO OCR Output Received:
+Zar
+two) ECO SRI
+
+VEHICLE EMISSION TEST CERTIFICATE
+seriacno: LE 32899006
+
+VEHICLE DETAILS ORIGINAL DATE OF ISSUE
+REG. NO. MAKE
+VEHICLE CLASS MODEL
+MOTOR CAR
+CHASSIS NO. YEAR OF MFG.
+ENGINE NO. FUEL TYPE
+Instrument
+TEST DETAILS ODOMETER
+CENTRE LANE
+Kirulapone 2
+TEST FEE TEST SPARQ/ENS:27 INSPECTOR
+1,400.00 lahirup
+: ~ 7 RPM HC co ry 02 02 OVERALL
+T "UNIT | /Min | ppmv/v | %v/v - viv % v/v STATUS
+STANDARD i 1000 3.00 f  - : -
+1DEL ar) 2 1.00 0.97 0.00 15.47 PASS
+[2500 RPM | 2580 0 0.00 1.00 0.00 14.87
+Oil Temp (°C) "N/A REFERENCE NO CER159-00000007
+QR CODE \ VEHICLE IMAGE VALID TILL
+—
+Ly ©
+06-Feb-2025 | 8°
+i a.
+oO -
+tL — S -
+°
+Revenue License No.
+Signature and Rubber Stamp of issuing office ££
+Be ce82 6nd qd@x5 o8M. | LET US BREATHE FRESH AIR. ASST SMBONG sour AUGLMD
+
+LAUGFS ECO SRI LIMITED. 5% Floor, No. 101, Maya Avenue, Colombo 06, SRI LANKA. ¢C 011 7 770 770 / 011 5 566 222
+
+This section to be retained by Revenue cof RAGAN Gite
+688 emde Pas Desa Sad ada mbBaga 58d ndom gro.
+
+senano:LE 32899006 .
+
+Reff No: cer1s9-oo000007 DATE 06-Feb-2024 ; 8. -
+REG. NO. MAKE @
+
+TOYOTA 2 >
+
+CENTRE TEST FEE ou
+Kirulapone 1,400.00 ; 8.
+
+
+2025-05-26 08:48:37,272 INFO 127.0.0.1 - - [26/May/2025 08:48:37] "POST /api/co2/extract_co2_from_certificate HTTP/1.1" 200 -
+2025-05-26 08:48:43,487 INFO 127.0.0.1 - - [26/May/2025 08:48:43] "GET /api/vehicles/vehicles/user/68310f45e9e66d475db0a2d0 HTTP/1.1" 200 -
