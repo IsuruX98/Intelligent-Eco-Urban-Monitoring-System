@@ -6129,3 +6129,38 @@ Kirulapone 1,400.00 ; 8.
 2025-05-25 03:56:27,297 INFO 127.0.0.1 - - [25/May/2025 03:56:27] "GET /api/vehicles/vehicles/user/68310f45e9e66d475db0a2d0 HTTP/1.1" 200 -
 2025-05-25 03:56:28,568 INFO 127.0.0.1 - - [25/May/2025 03:56:28] "GET /api/trip/all HTTP/1.1" 200 -
 2025-05-25 03:56:28,569 INFO 127.0.0.1 - - [25/May/2025 03:56:28] "GET /api/users/eco_points/68310f45e9e66d475db0a2d0 HTTP/1.1" 200 -
+2025-05-26 08:15:10,113 INFO Test log from run.py
+2025-05-26 08:16:05,256 INFO Test log from run.py
+2025-05-26 08:19:53,943 INFO Test log from run.py
+2025-05-26 08:19:57,728 INFO [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5001
+2025-05-26 08:19:57,728 INFO [33mPress CTRL+C to quit[0m
+2025-05-26 08:19:57,730 INFO  * Restarting with stat
+2025-05-26 08:19:58,170 INFO Test log from run.py
+2025-05-26 08:20:00,101 WARNING  * Debugger is active!
+2025-05-26 08:20:00,104 INFO  * Debugger PIN: 321-137-201
+2025-05-26 08:29:11,609 INFO Test log from run.py
+2025-05-26 08:29:14,505 INFO [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5001
+2025-05-26 08:29:14,505 INFO [33mPress CTRL+C to quit[0m
+2025-05-26 08:29:14,507 INFO  * Restarting with stat
+2025-05-26 08:29:14,868 INFO Test log from run.py
+2025-05-26 08:29:16,582 WARNING  * Debugger is active!
+2025-05-26 08:29:16,586 INFO  * Debugger PIN: 321-137-201
+2025-05-26 08:30:42,771 INFO 127.0.0.1 - - [26/May/2025 08:30:42] "OPTIONS /api/users/login HTTP/1.1" 200 -
+2025-05-26 08:30:44,437 INFO 127.0.0.1 - - [26/May/2025 08:30:44] "POST /api/users/login HTTP/1.1" 200 -
+2025-05-26 08:30:44,567 INFO 127.0.0.1 - - [26/May/2025 08:30:44] "GET /api/users/68310f45e9e66d475db0a2d0 HTTP/1.1" 200 -
+2025-05-26 08:30:59,132 INFO 127.0.0.1 - - [26/May/2025 08:30:59] "GET /api/users/eco_points/68310f45e9e66d475db0a2d0 HTTP/1.1" 200 -
+2025-05-26 08:30:59,753 INFO 127.0.0.1 - - [26/May/2025 08:30:59] "GET /api/trip/all HTTP/1.1" 200 -
+2025-05-26 08:31:06,404 INFO 127.0.0.1 - - [26/May/2025 08:31:06] "GET /api/vehicles/vehicles/user/68310f45e9e66d475db0a2d0 HTTP/1.1" 200 -
+2025-05-26 08:35:34,335 INFO 127.0.0.1 - - [26/May/2025 08:35:34] "[35m[1mPOST /api/co2/extract_co2_from_certificate HTTP/1.1[0m" 500 -
+2025-05-26 08:36:05,723 INFO 127.0.0.1 - - [26/May/2025 08:36:05] "[35m[1mPOST /api/co2/extract_co2_from_certificate HTTP/1.1[0m" 500 -
+2025-05-26 08:41:13,737 INFO Test log from run.py
+2025-05-26 08:41:16,106 INFO [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5001
+2025-05-26 08:41:16,106 INFO [33mPress CTRL+C to quit[0m
+2025-05-26 08:41:16,109 INFO  * Restarting with stat
+2025-05-26 08:41:16,512 INFO Test log from run.py
+2025-05-26 08:41:18,349 WARNING  * Debugger is active!
+2025-05-26 08:41:18,353 INFO  * Debugger PIN: 321-137-201
+2025-05-26 08:41:30,298 INFO 127.0.0.1 - - [26/May/2025 08:41:30] "[35m[1mPOST /api/co2/extract_co2_from_certificate HTTP/1.1[0m" 500 -
